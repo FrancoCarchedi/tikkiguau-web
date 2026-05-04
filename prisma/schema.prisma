@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql" 
+}
+
+// -------------------------------------------------------------
+// MODELOS DE BETTER AUTH (Necesarios para la autenticación)
+// -------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+// -------------------------------------------------------------
+// MODELOS DE NEGOCIO (TikkiGuau CMS)
+// -------------------------------------------------------------
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DELIVERED
+}
+
+enum DeliveryMethod {
+  PICKUP // Retiro en tienda
+  CORREO_DOMICILIO
+  CORREO_SUCURSAL
+}
+
+model Order {
+  id              String         @id @default(uuid())
+  orderNumber     String         @unique // Ej: "TK-1001"
+  status          OrderStatus    @default(PENDING)
+  
+  // Datos del contacto / invitado
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  
+  // Datos de envío
+  deliveryMethod  DeliveryMethod
+  address         String?
+  city            String?
+  zipCode         String?
+  trackingCode    String?        // Para cargar el código de Correo Argentino
+  
+  // Costos y productos
+  totalAmount     Float          // Costo total de items + envío
+  orderItems      Json           // El JSON estructurado del carrito
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("orders")
+}
