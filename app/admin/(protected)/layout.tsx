@@ -1,6 +1,9 @@
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
+import { AdminSidebar } from '@/components/admin/admin-sidebar'
+import { Toaster } from '@/components/ui/sonner'
 
 export default async function AdminLayout({
   children,
@@ -15,5 +18,11 @@ export default async function AdminLayout({
     redirect('/admin/sign-in')
   }
 
-  return <>{children}</>
+  return (
+    <SidebarProvider>
+      <AdminSidebar user={session.user} />
+      <SidebarInset>{children}</SidebarInset>
+      <Toaster richColors position="top-right" />
+    </SidebarProvider>
+  )
 }

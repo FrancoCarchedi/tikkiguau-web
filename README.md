@@ -82,6 +82,9 @@ El panel será de acceso exclusivo para el Administrador para procesar y hacer s
     ```
   - **Estado**: Se manejará un ciclo de vida lineal y simple: `Pendiente` -> `Aprobado` -> `Rechazado` -> `Entregado`.
 
+- **Gestión de Tiendas**:
+  - Habrá una sección que será navegable desde la sidebar donde se podrá gestionar las tiendas. La idea desde aca es tener un listado de tiendas.
+  Cada tienda tendrá un id, nombre, una palabra clave (keyword), fecha de creación, y fecha de actualización.
 
 ## Website
 

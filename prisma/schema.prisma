@@ -113,9 +113,25 @@ model Order {
   // Costos y productos
   totalAmount     Float          // Costo total de items + envío
   orderItems      Json           // El JSON estructurado del carrito
+
+  // Tienda origen (solo si fue creada desde la app de tiendas)
+  storeId         String?
+  store           Store?         @relation(fields: [storeId], references: [id])
   
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
   @@map("orders")
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  keyword   String   @unique
+  isActive  Boolean  @default(true)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stores")
 }
