@@ -133,7 +133,7 @@ export function OrdersTable() {
           className="h-8 w-72"
         />
 
-        <Select value={filterStore} onValueChange={setFilterStore}>
+        <Select value={filterStore} onValueChange={(v) => setFilterStore(v ?? 'all')}>
           <SelectTrigger size="sm" className="w-40">
             <TriggerLabel
               placeholder="Tienda"
@@ -153,7 +153,7 @@ export function OrdersTable() {
           </SelectContent>
         </Select>
 
-        <Select value={filterDelivery} onValueChange={setFilterDelivery}>
+        <Select value={filterDelivery} onValueChange={(v) => setFilterDelivery(v ?? 'all')}>
           <SelectTrigger size="sm" className="w-44">
             <TriggerLabel
               placeholder="Entrega"
@@ -168,7 +168,7 @@ export function OrdersTable() {
           </SelectContent>
         </Select>
 
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
+        <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v ?? 'all')}>
           <SelectTrigger size="sm" className="w-36">
             <TriggerLabel
               placeholder="Estado"
