@@ -23,7 +23,7 @@ export default function Hero() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="max-w-xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
-            Collares únicos para mascotas únicas
+            Accesorios únicos para mascotas únicas
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-white/90 leading-relaxed drop-shadow-sm">
             Elegí colores, letras y emojis. Armá el diseño perfecto para tu

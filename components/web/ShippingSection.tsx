@@ -1,4 +1,4 @@
-import { Home, MapPin, Building2, ArrowRight, Smartphone } from "lucide-react";
+import { Home, MapPin, Building2, ArrowRight } from "lucide-react";
 
 const DELIVERY_OPTIONS = [
   {
@@ -11,22 +11,22 @@ const DELIVERY_OPTIONS = [
     tagBg: "#2A6A5C",
   },
   {
-    icon: MapPin,
-    title: "Correo Argentino a domicilio",
+    icon: Building2,
+    title: "Retiro por sucursal",
     description:
-      "Tu pedido llega hasta la puerta de tu casa. Ingresás tu dirección completa al confirmar la reserva.",
-    accent: "#1C5394",
-    tag: "Todo el país",
-    tagBg: "#1C5394",
+      "Retirás el paquete en la sucursal de Correo Argentino más cercana. Indicás tu ciudad y código postal al confirmar el pedido.",
+    accent: "#84A308",
+    tag: "$8.000 ARS",
+    tagBg: "#84A308",
   },
   {
-    icon: Building2,
-    title: "Correo Argentino a sucursal",
+    icon: MapPin,
+    title: "Envío a domicilio",
     description:
-      "Retirás el paquete en la sucursal de Correo Argentino más cercana. Indicás tu ciudad y código postal.",
-    accent: "#84A308",
-    tag: "Todo el país",
-    tagBg: "#84A308",
+      "Tu pedido llega hasta la puerta de tu casa. Ingresás tu dirección completa al confirmar el pedido.",
+    accent: "#1C5394",
+    tag: "$12.000 ARS",
+    tagBg: "#1C5394",
   },
 ];
 
@@ -40,19 +40,19 @@ const STEPS = [
     number: "2",
     title: "Confirmás la reserva",
     description:
-      "Ingresás tus datos y elegís cómo querés recibir el pedido. Se genera tu número de orden.",
+      "Ingresás tus datos, elegís cómo recibir el pedido y ves el total con el costo de envío incluido.",
   },
   {
     number: "3",
-    title: "TikkiGuau te contacta",
+    title: "Realizás la transferencia",
     description:
-      "Te escribimos por WhatsApp para confirmarte el total final con envío y los datos de transferencia.",
+      "Pagás por transferencia a nuestra cuenta de Mercado Pago con los datos que te indicamos al confirmar.",
   },
   {
     number: "4",
-    title: "Realizás la transferencia",
+    title: "Comenzamos tu pedido",
     description:
-      "Pagás por transferencia bancaria. Aprobamos tu orden y comenzamos a confeccionarla.",
+      "Una vez acreditado el pago, confeccionamos tu diseño y coordinamos el envío o retiro.",
   },
 ];
 
@@ -69,7 +69,9 @@ export default function ShippingSection() {
             ¿Cómo funciona?
           </h2>
           <p className="text-zinc-500 max-w-xl mx-auto">
-            El sitio funciona como una <strong className="text-zinc-700">reserva de pedido</strong>. El pago se coordina por WhatsApp una vez que confirmás tu diseño.
+            El sitio funciona como una{" "}
+            <strong className="text-zinc-700">reserva de pedido</strong>. Los costos de envío son
+            fijos y el pago se realiza por transferencia a Mercado Pago.
           </p>
         </div>
 
@@ -93,7 +95,7 @@ export default function ShippingSection() {
         </div>
 
         {/* Delivery options */}
-        <div className="mb-14">
+        <div>
           <h3 className="text-xl font-bold text-zinc-800 mb-6 text-center">
             Opciones de entrega
           </h3>
@@ -127,35 +129,6 @@ export default function ShippingSection() {
               );
             })}
           </div>
-        </div>
-
-        {/* Payment highlight */}
-        <div className="bg-zinc-900 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-6">
-          <div
-            className="flex items-center justify-center w-14 h-14 rounded-2xl shrink-0"
-            style={{ backgroundColor: "rgba(199,15,17,0.25)" }}
-          >
-            <Smartphone className="w-7 h-7 text-[#C70F11]" />
-          </div>
-          <div className="flex-1 text-center md:text-left">
-            <h3 className="text-lg font-bold text-white mb-1">
-              El pago se coordina por WhatsApp
-            </h3>
-            <p className="text-zinc-400 text-sm leading-relaxed">
-              Una vez que confirmás tu reserva, te escribimos para darte el total final
-              (incluyendo el envío si corresponde) y los datos bancarios para la transferencia.
-              Solo aceptamos transferencia bancaria.
-            </p>
-          </div>
-          <a
-            href="https://wa.me/5491121816245"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C70F11] text-white text-sm font-semibold hover:bg-[#a50d0f] transition-colors"
-          >
-            Escribinos
-            <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
       </div>
     </section>

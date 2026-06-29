@@ -2,34 +2,39 @@ import { ChevronDown } from "lucide-react";
 
 const FAQS = [
   {
-    question: "¿Los collares se rayan o se desgastan con el uso?",
+    question: "¿Realizan ventas al por mayor?",
     answer:
-      "Los apliques están fijados con remaches de metal de alta resistencia. Con uso cotidiano normal, los diseños duran años sin desgastarse ni desprenderse.",
+      "Próximamente estaremos trabajando al por mayor. Si estás interesado en comprar bajo esta modalidad, escribinos por WhatsApp y te tendremos en cuenta cuando la habilitemos oficialmente.",
   },
   {
-    question: "¿Son resistentes al agua?",
+    question: "¿Cuántas letras y emojis puedo agregar?",
     answer:
-      "El material soporta humedad y mojado ocasional, como charcos o baños rápidos. No recomendamos mantenerlos sumergidos de forma prolongada.",
+      "Los collares incluyen 6 piezas para personalizar, que podés combinar como prefieras entre letras y emojis. Las correas incluyen 10 piezas para personalizar, y también podés elegir si querés usar solo letras, solo emojis o una combinación de ambos.",
   },
   {
-    question: "¿Cuántas letras y emojis puedo poner?",
+    question: "¿Venden letras y emojis por separado?",
     answer:
-      "Podés combinar letras y emojis personalizados libremente dentro del límite de piezas de cada producto: 6 piezas para el collar y 10 piezas para la correa. Si llevás el combo, tenés 6 para el collar y 10 para la correa, en total 16 piezas.",
+      "Actualmente no realizamos la venta individual de piezas sin la compra previa de nuestros productos. Si querés agregar letras o emojis adicionales para complementar un accesorio que ya tenés, podés solicitarlo a través de WhatsApp.",
   },
   {
     question: "¿Cuánto tarda en llegar mi pedido?",
     answer:
-      "Los pedidos se confeccionan en pocos días hábiles. Una vez listo, los envíos por Correo Argentino demoran entre 3 y 10 días hábiles según el destino. Te informamos el tiempo exacto al confirmar tu reserva por WhatsApp.",
+      "Los envíos mediante Correo Argentino tienen un tiempo estimado de entrega de 3 a 5 días hábiles una vez despachados. Los despachos se realizan los días lunes, por lo que la fecha de compra puede influir en el tiempo total de entrega. De todas maneras, te mantendremos informado durante todo el proceso.",
   },
   {
-    question: "¿Cómo se coordina el pago?",
+    question: "¿Realizan envíos a todo el país?",
     answer:
-      "El pago es exclusivamente por transferencia bancaria. Una vez que confirmás tu reserva en el sitio, te contactamos por WhatsApp para informarte el total final (producto + envío si aplica) y los datos bancarios para realizar la transferencia.",
+      "Sí, realizamos envíos a todo el país.",
   },
   {
-    question: "¿Hacen envíos a todo el país?",
+    question: "¿Los accesorios se rayan o desgastan con el uso?",
     answer:
-      "Sí, enviamos a todo el país a través de Correo Argentino, tanto a domicilio como a sucursal. Si estás en CABA también podés optar por retirar el pedido en nuestro domicilio sin costo de envío.",
+      "Nuestros accesorios están elaborados con materiales seleccionados para ofrecer resistencia y durabilidad en el uso diario. Sin embargo, como cualquier producto, su vida útil dependerá del cuidado y el uso que reciba cada mascota.",
+  },
+  {
+    question: "¿Realizan cambios o devoluciones?",
+    answer:
+      "Debido a que nuestros productos son personalizados, no realizamos cambios ni devoluciones por errores en la información proporcionada por el cliente o por cambios de opinión. Si recibiste un producto con un defecto de fabricación o hubo un error de nuestra parte, escribinos por WhatsApp para ayudarte a resolverlo.",
   },
 ];
 
