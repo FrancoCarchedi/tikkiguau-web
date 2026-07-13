@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LogOutIcon, PackageIcon, StoreIcon, PawPrintIcon } from 'lucide-react'
+import { LogOutIcon, PackageIcon, StoreIcon, PawPrintIcon, PaletteIcon } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +32,13 @@ type User = {
 const navItems = [
   { title: 'Órdenes', href: '/admin', icon: PackageIcon },
   { title: 'Tiendas', href: '/admin/tiendas', icon: StoreIcon },
+]
+
+const catalogItems = [
+  { title: 'Colores', href: '/admin/catalogo/colores' },
+  { title: 'Letras', href: '/admin/catalogo/letras' },
+  { title: 'Emojis', href: '/admin/catalogo/emojis' },
+  { title: 'Precios', href: '/admin/catalogo/precios' },
 ]
 
 export function AdminSidebar({ user }: { user: User }) {
@@ -82,6 +89,25 @@ export function AdminSidebar({ user }: { user: User }) {
                     isActive={pathname === item.href}
                   >
                     <item.icon />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Catálogo</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {catalogItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    render={<Link href={item.href} />}
+                    isActive={pathname === item.href}
+                  >
+                    <PaletteIcon />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

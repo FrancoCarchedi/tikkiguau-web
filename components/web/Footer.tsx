@@ -1,16 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { scrollToSection } from "@/lib/scroll-to-section";
 
 const NAV_LINKS = [
-  { label: "Productos", href: "#productos" },
-  { label: "Galería", href: "#galeria" },
-  { label: "Medidas", href: "#medidas" },
-  { label: "Envíos y pagos", href: "#envios" },
-  { label: "Testimonios", href: "#testimonios" },
-  { label: "Preguntas frecuentes", href: "#faq" },
-];
+  { label: "Productos", sectionId: "productos" },
+  { label: "Galería", sectionId: "galeria" },
+  { label: "Medidas", sectionId: "medidas" },
+  { label: "Envíos y pagos", sectionId: "envios" },
+  { label: "Testimonios", sectionId: "testimonios" },
+  { label: "Preguntas frecuentes", sectionId: "faq" },
+] as const;
 
-// Instagram SVG icon
 function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -25,7 +27,6 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
-// WhatsApp SVG icon (brand icon, not in lucide)
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -47,8 +48,7 @@ export default function Footer() {
     <footer className="bg-zinc-900 text-zinc-400">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
-          {/* Brand column */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
             <Link href="/" className="inline-block">
               <Image
                 src="/images/tikkiguau-logo.png"
@@ -59,52 +59,29 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
-              Collares y correas personalizados para perros y gatos. Diseñá el
-              tuyo desde casa.
+              Accesorios únicos para mascotas únicas.
             </p>
-            {/* Social links */}
-            {/* <div className="flex items-center gap-3">
-              <a
-                href="https://www.instagram.com/tikkiguau/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TikkiGuau en Instagram"
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-800 hover:bg-[#C70F11] text-zinc-400 hover:text-white transition-colors"
-              >
-                <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://wa.me/5491121816245"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TikkiGuau en WhatsApp"
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-800 hover:bg-[#C70F11] text-zinc-400 hover:text-white transition-colors"
-              >
-                <WhatsAppIcon className="w-4 h-4" />
-              </a>
-            </div> */}
           </div>
 
-          {/* Navigation column */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-5">
               Navegación
             </h3>
             <ul className="flex flex-col gap-3">
               {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
+                <li key={link.sectionId}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection(link.sectionId)}
                     className="text-sm hover:text-white transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact column */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-5">
               Contacto
@@ -140,7 +117,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
         <div className="border-t border-zinc-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-600">
           <p>© {currentYear} TikkiGuau. Todos los derechos reservados.</p>
           <p>Hecho con ❤️ en Argentina 🇦🇷</p>

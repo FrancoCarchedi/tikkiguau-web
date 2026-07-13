@@ -1,3 +1,4 @@
+/** @deprecated SVG gestionado desde CMS; conservado para extracción en seed. */
 import * as React from "react";
 
 const Patitas = ({ fillColor = '#C70F11', ...props }: React.SVGProps<SVGSVGElement> & { fillColor?: string }) => (

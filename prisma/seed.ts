@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { auth } from '../lib/auth'
 import { prisma } from '../lib/prisma'
 import { env } from '../lib/env'
+import { seedCatalog } from './seed-catalog'
 
 const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = env
 
@@ -26,20 +27,21 @@ async function main() {
 
   if (existingUser) {
     console.log(`El usuario administrador ya existe: ${existingUser.email}`)
-    return
+  } else {
+    console.log('Creando usuario administrador...')
+
+    await auth.api.signUpEmail({
+      body: {
+        name: ADMIN_USER.name,
+        email: ADMIN_USER.email,
+        password: ADMIN_USER.password,
+      },
+    })
+
+    console.log(`✓ Usuario administrador creado exitosamente: ${ADMIN_USER.email}`)
   }
 
-  console.log('Creando usuario administrador...')
-
-  await auth.api.signUpEmail({
-    body: {
-      name: ADMIN_USER.name,
-      email: ADMIN_USER.email,
-      password: ADMIN_USER.password,
-    },
-  })
-
-  console.log(`✓ Usuario administrador creado exitosamente: ${ADMIN_USER.email}`)
+  await seedCatalog(prisma)
 }
 
 main()

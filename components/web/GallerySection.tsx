@@ -1,5 +1,16 @@
+import Image from "next/image";
 import { Camera } from "lucide-react";
-import { COLLAR_COLORS } from "@/types/collar";
+import type { CatalogBaseColorDto } from "@/types/catalog";
+
+type GalleryItem = {
+  colorIndex: number;
+  label: string;
+  aspectRatio: string;
+  minRes: string;
+  imageSrc?: string;
+  imageSrcSquare?: string;
+  imageAlt?: string;
+};
 
 /*
   Mosaic layout (desktop, 3 cols × 3 rows of 180px each):
@@ -9,38 +20,104 @@ import { COLLAR_COLORS } from "@/types/collar";
   R1   │  A tall  │   B wide        │
        │  (1×2)   ├─────────┬───────┤
   R2   │          │  C      │  D    │
-       ├──────────┴──────────┤       │
-  R3   │  E wide             │  F    │
+       ├──────────┴──────────┤ tall │
+  R3   │  E wide             │ (1×2)│
        └─────────────────────┴───────┘
 */
 
-const ITEMS = [
-  { colorIndex: 0, label: "Collar personalizado",   aspectRatio: "1:1",  minRes: "800 × 800 px" },
-  { colorIndex: 4, label: "Correa con diseño",      aspectRatio: "9:2",  minRes: "1600 × 360 px" },
-  { colorIndex: 5, label: "Diseño con letras",      aspectRatio: "2:1",  minRes: "800 × 360 px" },
-  { colorIndex: 2, label: "Combo collar + correa",  aspectRatio: "2:1",  minRes: "800 × 360 px" },
-  { colorIndex: 7, label: "Diseño con emojis",      aspectRatio: "9:2",  minRes: "1600 × 360 px" },
-  { colorIndex: 3, label: "Collar talla XS",        aspectRatio: "2:1",  minRes: "800 × 360 px" },
+const ITEMS: GalleryItem[] = [
+  {
+    colorIndex: 0,
+    label: "Collar personalizado",
+    aspectRatio: "1:1",
+    minRes: "800 × 800 px",
+    imageSrc: "/images/collar_personalizado.png",
+    imageSrcSquare: "/images/collar_personalizado.png",
+    imageAlt: "Collar personalizado",
+  },
+  {
+    colorIndex: 4,
+    label: "Collares personalizados con emojis",
+    aspectRatio: "9:2",
+    minRes: "1600 × 360 px",
+    imageSrc: "/images/diseno_emojis.png",
+    imageSrcSquare: "/images/diseno_emojis_square.png",
+    imageAlt: "Collares personalizados con emojis",
+  },
+  {
+    colorIndex: 5,
+    label: "Diseño con letras",
+    aspectRatio: "2:1",
+    minRes: "800 × 360 px",
+    imageSrc: "/images/diseno_letras.png",
+    imageSrcSquare: "/images/diseno_letras_square.png",
+    imageAlt: "Correa personalizada con letras",
+  },
+  {
+    colorIndex: 2,
+    label: "Vamos Argentina!",
+    aspectRatio: "2:3",
+    minRes: "800 × 1200 px",
+    imageSrc: "/images/vamos_argentina.png",
+    imageSrcSquare: "/images/vamos_argentina.png",
+    imageAlt: "¡Vamos Argentina! Collar personalizado de Argentina",
+  },
+  {
+    colorIndex: 7,
+    label: "Diseño con emojis",
+    aspectRatio: "9:2",
+    minRes: "1600 × 360 px",
+    imageSrc: "/images/pet_delivery.png",
+    imageSrcSquare: "/images/pet_delivery_square.png",
+    imageAlt: "Empaque personalizado de productos de TikkiGuau",
+  },
 ];
 
-function PlaceholderCell({
+function GalleryCell({
   colorIndex,
   label,
   aspectRatio,
   minRes,
+  imageSrc,
+  imageSrcSquare,
+  imageAlt,
   className = "",
-}: {
-  colorIndex: number;
-  label: string;
-  aspectRatio: string;
-  minRes: string;
+  baseColors,
+  imageVariant = "desktop",
+}: GalleryItem & {
   className?: string;
+  baseColors: CatalogBaseColorDto[];
+  imageVariant?: "desktop" | "mobile";
 }) {
-  const color = COLLAR_COLORS[colorIndex];
+  const resolvedImageSrc =
+    imageVariant === "mobile" && imageSrcSquare ? imageSrcSquare : imageSrc;
+
+  if (resolvedImageSrc) {
+    return (
+      <div
+        className={`relative rounded-2xl overflow-hidden group ${className}`}
+      >
+        <Image
+          src={resolvedImageSrc}
+          alt={imageAlt ?? label}
+          fill
+          className="object-cover object-center"
+          sizes={
+            imageVariant === "mobile"
+              ? "50vw"
+              : "(max-width: 1280px) 66vw, 805px"
+          }
+        />
+      </div>
+    );
+  }
+
+  const color = baseColors[colorIndex] ?? baseColors[0];
+  if (!color) return null;
   return (
     <div
       className={`relative flex flex-col items-center justify-center rounded-2xl overflow-hidden group ${className}`}
-      style={{ backgroundColor: color.value }}
+      style={{ backgroundColor: color.hexValue }}
     >
       {/* Subtle dot pattern */}
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-size-[20px_20px]" />
@@ -65,7 +142,11 @@ function PlaceholderCell({
   );
 }
 
-export default function GallerySection() {
+export default function GallerySection({
+  baseColors,
+}: {
+  baseColors: CatalogBaseColorDto[];
+}) {
   return (
     <section id="galeria" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -86,74 +167,55 @@ export default function GallerySection() {
           style={{ gridTemplateRows: "repeat(3, 180px)" }}
         >
           {/* A: col 1, rows 1–2 (tall) */}
-          <PlaceholderCell
-            colorIndex={ITEMS[0].colorIndex}
-            label={ITEMS[0].label}
-            aspectRatio={ITEMS[0].aspectRatio}
-            minRes={ITEMS[0].minRes}
+          <GalleryCell
+            {...ITEMS[0]}
             className="col-start-1 row-start-1 row-span-2"
+            baseColors={baseColors}
           />
           {/* B: cols 2–3, row 1 (wide) */}
-          <PlaceholderCell
-            colorIndex={ITEMS[1].colorIndex}
-            label={ITEMS[1].label}
-            aspectRatio={ITEMS[1].aspectRatio}
-            minRes={ITEMS[1].minRes}
+          <GalleryCell
+            {...ITEMS[1]}
             className="col-start-2 col-span-2 row-start-1"
+            baseColors={baseColors}
           />
           {/* C: col 2, row 2 */}
-          <PlaceholderCell
-            colorIndex={ITEMS[2].colorIndex}
-            label={ITEMS[2].label}
-            aspectRatio={ITEMS[2].aspectRatio}
-            minRes={ITEMS[2].minRes}
+          <GalleryCell
+            {...ITEMS[2]}
             className="col-start-2 row-start-2"
+            baseColors={baseColors}
           />
-          {/* D: col 3, row 2 */}
-          <PlaceholderCell
-            colorIndex={ITEMS[3].colorIndex}
-            label={ITEMS[3].label}
-            aspectRatio={ITEMS[3].aspectRatio}
-            minRes={ITEMS[3].minRes}
-            className="col-start-3 row-start-2"
+          {/* D: col 3, rows 2–3 (tall / vertical) */}
+          <GalleryCell
+            {...ITEMS[3]}
+            className="col-start-3 row-start-2 row-span-2"
+            baseColors={baseColors}
           />
           {/* E: cols 1–2, row 3 (wide) */}
-          <PlaceholderCell
-            colorIndex={ITEMS[4].colorIndex}
-            label={ITEMS[4].label}
-            aspectRatio={ITEMS[4].aspectRatio}
-            minRes={ITEMS[4].minRes}
+          <GalleryCell
+            {...ITEMS[4]}
             className="col-start-1 col-span-2 row-start-3"
-          />
-          {/* F: col 3, row 3 */}
-          <PlaceholderCell
-            colorIndex={ITEMS[5].colorIndex}
-            label={ITEMS[5].label}
-            aspectRatio={ITEMS[5].aspectRatio}
-            minRes={ITEMS[5].minRes}
-            className="col-start-3 row-start-3"
+            baseColors={baseColors}
           />
         </div>
 
-        {/* Mosaic — mobile (2-col uniform grid) */}
+        {/* Mosaic — mobile (2-col grid; last item spans both cols as wide image) */}
         <div className="grid grid-cols-2 gap-3 md:hidden">
-          {ITEMS.map((item, i) => (
-            <PlaceholderCell
-              key={i}
-              colorIndex={item.colorIndex}
-              label={item.label}
-              aspectRatio={item.aspectRatio}
-              minRes={item.minRes}
-              className="aspect-square"
-            />
-          ))}
+          {ITEMS.map((item, i) => {
+            const isLast = i === ITEMS.length - 1;
+            return (
+              <GalleryCell
+                key={i}
+                {...item}
+                // Last item: force horizontal pet_delivery (not the square crop)
+                imageSrcSquare={isLast ? undefined : item.imageSrcSquare}
+                imageVariant="mobile"
+                className={isLast ? "col-span-2 aspect-[9/2]" : "aspect-square"}
+                baseColors={baseColors}
+              />
+            );
+          })}
         </div>
-
-        <p className="mt-8 text-center text-sm text-zinc-400 italic">
-          Las fotos reales de los productos se agregarán próximamente.
-        </p>
       </div>
     </section>
   );
 }
-

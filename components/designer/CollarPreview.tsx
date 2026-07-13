@@ -1,6 +1,7 @@
 "use client";
 
-import { CollarElement, ELEMENT_COLORS } from '@/types/collar';
+import { CollarElement } from '@/types/collar';
+import { useCatalogContext } from '@/components/catalog/catalog-provider';
 import { forwardRef, useState } from 'react';
 import { GripHorizontal, X } from 'lucide-react';
 import { EmojiRenderer } from '@/components/designer/custom-emojis/EmojiRenderer';
@@ -70,11 +71,11 @@ function SortableCollarItem({
       {interactive && onRemove && (
         <button
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          className={`absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center transition-opacity ${
+          className={`absolute -top-1 -right-1 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center transition-opacity ${
             isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
           }`}
         >
-          <X className="w-2.5 h-2.5" />
+          <X className="w-2.5 h-2.5 text-white" />
         </button>
       )}
       {element.type === 'emoji' ? (
@@ -101,6 +102,8 @@ function SortableCollarItem({
 
 const CollarPreview = forwardRef<HTMLDivElement, CollarPreviewProps>(
   ({ collarColor, elements, onChangeColor, onReorder, onRemoveElement, selectedElementId, onSelectElement }, ref) => {
+    const catalog = useCatalogContext();
+    const elementColors = catalog?.elementColors.map((color) => color.hexValue) ?? [];
     const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
     const selectedId = selectedElementId !== undefined ? selectedElementId : internalSelectedId;
     const setSelectedId = onSelectElement ?? setInternalSelectedId;
@@ -170,7 +173,7 @@ const CollarPreview = forwardRef<HTMLDivElement, CollarPreviewProps>(
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs text-muted-foreground font-medium">Color de la letra</span>
             <div className="flex gap-2 flex-wrap justify-center">
-              {ELEMENT_COLORS.map((c) => (
+              {elementColors.map((c) => (
                 <button
                   key={c}
                   onClick={() => onChangeColor!(selectedId!, c)}
