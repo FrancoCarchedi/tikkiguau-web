@@ -135,3 +135,109 @@ model Store {
 
   @@map("stores")
 }
+
+// -------------------------------------------------------------
+// CATÁLOGO DINÁMICO (CMS)
+// -------------------------------------------------------------
+
+enum CatalogProductType {
+  COLLAR
+  LEASH
+  BOTH
+}
+
+model CatalogBaseColor {
+  id        String   @id @default(cuid())
+  name      String
+  hexValue  String   @unique
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("catalog_base_colors")
+}
+
+model CatalogElementColor {
+  id           String              @id @default(cuid())
+  hexValue     String              @unique
+  isActive     Boolean             @default(true)
+  sortOrder    Int                 @default(0)
+  letterColors CatalogLetterColor[]
+  emojiColors  CatalogEmojiColor[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@map("catalog_element_colors")
+}
+
+model CatalogLetter {
+  id        String               @id @default(cuid())
+  letter    String               @unique @db.Char(1)
+  isActive  Boolean              @default(true)
+  sortOrder Int                  @default(0)
+  colors    CatalogLetterColor[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@map("catalog_letters")
+}
+
+model CatalogLetterColor {
+  letterId       String
+  elementColorId String
+  letter         CatalogLetter       @relation(fields: [letterId], references: [id], onDelete: Cascade)
+  elementColor   CatalogElementColor @relation(fields: [elementColorId], references: [id], onDelete: Cascade)
+
+  @@id([letterId, elementColorId])
+  @@map("catalog_letter_colors")
+}
+
+model CatalogEmoji {
+  id              String              @id @default(cuid())
+  key             String              @unique
+  label           String
+  svgMarkup       String              @db.Text
+  isActive        Boolean             @default(true)
+  sortOrder       Int                 @default(0)
+  /// Tallas en las que el emoji está disponible ("1" | "2")
+  availableSizes  String[]            @default(["1", "2"])
+  colors          CatalogEmojiColor[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@map("catalog_emojis")
+}
+
+model CatalogEmojiColor {
+  emojiId        String
+  elementColorId String
+  emoji          CatalogEmoji        @relation(fields: [emojiId], references: [id], onDelete: Cascade)
+  elementColor   CatalogElementColor @relation(fields: [elementColorId], references: [id], onDelete: Cascade)
+
+  @@id([emojiId, elementColorId])
+  @@map("catalog_emoji_colors")
+}
+
+model ProductPrice {
+  id          String             @id @default(cuid())
+  productType CatalogProductType @unique
+  amountArs   Int
+  pieces      Int
+  label       String
+  description String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@map("product_prices")
+}
+
+model ShippingPrice {
+  id             String         @id @default(cuid())
+  deliveryMethod DeliveryMethod @unique
+  amountArs      Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("shipping_prices")
+}
