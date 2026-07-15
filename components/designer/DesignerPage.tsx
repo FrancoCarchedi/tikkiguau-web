@@ -332,8 +332,8 @@ export default function DesignerPage() {
         : 'Siguiente';
 
   return (
-    <div className="designer-theme min-h-screen bg-[#D20A0A] flex items-start justify-center py-2 px-0 sm:py-8 sm:px-4">
-      <div className="w-full max-w-6xl bg-white shadow-xl overflow-hidden sm:rounded-2xl">
+    <div className="designer-theme min-h-screen bg-[#D20A0A] flex items-start justify-center py-2 px-3 sm:py-8 sm:px-4">
+      <div className="w-full max-w-6xl bg-white shadow-xl overflow-hidden rounded-2xl">
         <div className="flex items-center justify-between py-5 px-4 sm:px-6 border-b border-gray-100">
           <Link
             href="/"

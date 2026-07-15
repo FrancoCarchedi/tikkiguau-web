@@ -108,7 +108,7 @@ export default function SizesSection() {
     <section id="medidas" className="py-20 bg-zinc-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="text-center mb-14">
+        <div className="text-left md:text-center mb-14">
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#C70F11] mb-3">
             Guía de tallas
           </span>

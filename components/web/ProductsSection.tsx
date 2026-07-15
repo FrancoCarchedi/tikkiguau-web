@@ -40,13 +40,13 @@ export default function ProductsSection({
   return (
     <section id="productos" className="py-24 bg-zinc-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
+        <div className="text-left md:text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mb-4">
             Nuestros productos
           </h2>
-          <p className="mt-4 text-lg text-zinc-500 max-w-2xl mx-auto">
-            Diseñá el collar o la correa perfecta para tu mascota. Combiná
-            colores, letras y emojis a tu gusto.
+          <p className="text-zinc-500 max-w-xl mx-auto">
+            Diseñá el collar o la correa perfecta para tu mascota. <br />
+            Combiná colores, letras y emojis a tu gusto.
           </p>
         </div>
 
