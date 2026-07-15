@@ -163,7 +163,7 @@ export default function ElementEditor({
 
   return (
     <div className="space-y-5">
-      <div className="text-start">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
         <p className="text-muted-foreground mt-1">
           {subtitle ||

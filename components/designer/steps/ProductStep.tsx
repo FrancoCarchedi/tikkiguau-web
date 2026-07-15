@@ -16,7 +16,7 @@ export default function ProductStep({ selectedProduct, onSelect }: ProductStepPr
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <div className="text-center">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">
           ¿Qué querés personalizar?
         </h2>

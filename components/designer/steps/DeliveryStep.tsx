@@ -54,7 +54,7 @@ export default function DeliveryStep({ data, onChange }: DeliveryStepProps) {
 
   return (
     <div className="space-y-6 max-w-lg mx-auto">
-      <div className="text-center">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">Método de entrega</h2>
         <p className="text-muted-foreground mt-1">
           Elegí cómo querés recibir tu pedido

@@ -25,7 +25,7 @@ export default function CartStep({ items, onAddAnother }: CartStepProps) {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <div className="text-center">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">Tu carrito</h2>
         <p className="text-muted-foreground mt-1">
           {items.length === 1 ? '1 producto configurado' : `${items.length} productos configurados`}
