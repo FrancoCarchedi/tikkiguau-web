@@ -126,7 +126,7 @@ export default function ConfirmationStep({
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">Confirmá tu pedido</h2>
         <p className="text-muted-foreground mt-1">Revisá el resumen antes de enviar la reserva</p>
       </div>

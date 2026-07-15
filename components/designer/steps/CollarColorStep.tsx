@@ -21,7 +21,7 @@ export default function CollarColorStep({
 
   return (
     <div className="space-y-5">
-      <div className="text-center">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">
           Elige el color y talla del collar
         </h2>

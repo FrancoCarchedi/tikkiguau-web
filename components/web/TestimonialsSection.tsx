@@ -125,7 +125,7 @@ export default function TestimonialsSection() {
     <section id="testimonios" className="py-20 bg-zinc-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-14">
+        <div className="text-left md:text-center mb-14">
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#C70F11] mb-3">
             Lo que dicen nuestros clientes
           </span>
@@ -133,8 +133,9 @@ export default function TestimonialsSection() {
             Testimonios
           </h2>
           <p className="text-zinc-500 max-w-xl mx-auto">
-            Más de cien mascotas ya tienen su collar único. Esto es lo que nos
-            cuentan sus dueños.
+            Más de cien mascotas ya tienen su collar único. 
+            <br />
+            Esto es lo que nos cuentan sus dueños.
           </p>
         </div>
 
@@ -181,12 +182,6 @@ export default function TestimonialsSection() {
             </article>
           ))}
         </div>
-
-        {/* Photo placeholder notice */}
-        <p className="mt-10 text-center text-xs text-zinc-400 flex items-center justify-center gap-1.5">
-          <Camera className="w-3.5 h-3.5" />
-          Los avatares serán reemplazados por fotos reales de las mascotas.
-        </p>
       </div>
     </section>
   );

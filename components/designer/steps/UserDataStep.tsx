@@ -12,7 +12,7 @@ interface UserDataStepProps {
 export default function UserDataStep({ data, onChange }: UserDataStepProps) {
   return (
     <div className="space-y-6 max-w-md mx-auto">
-      <div className="text-center">
+      <div className="text-left md:text-center">
         <h2 className="text-2xl font-semibold text-foreground">Tus datos de contacto</h2>
         <p className="text-muted-foreground mt-1">
           Los usamos para confirmar tu pedido y coordinar la entrega

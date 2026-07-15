@@ -43,7 +43,7 @@ export default function FAQSection() {
     <section id="faq" className="py-20 bg-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-14">
+        <div className="text-left md:text-center mb-14">
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#C70F11] mb-3">
             FAQ
           </span>
