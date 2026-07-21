@@ -51,7 +51,7 @@ export default function Footer() {
           <div className="flex flex-col gap-2">
             <Link href="/" className="inline-block">
               <Image
-                src="/images/tikkiguau-logo.png"
+                src="/images/tikkiguau-logo.webp"
                 alt="TikkiGuau"
                 width={160}
                 height={50}

@@ -11,7 +11,7 @@ export default function Hero() {
     <section className="relative flex items-start md:items-center min-h-screen pt-16 overflow-hidden">
       {/* Mobile: perros abajo, espacio rojo arriba para el copy */}
       <Image
-        src="/images/hero__banner_mobile.png"
+        src="/images/hero__banner_mobile.webp"
         alt="Dos perros con collares personalizados TikkiGuau"
         fill
         className="object-cover object-bottom md:hidden"
@@ -22,7 +22,7 @@ export default function Hero() {
 
       {/* Desktop */}
       <Image
-        src="/images/hero__banner.png"
+        src="/images/hero__banner.webp"
         alt="Dos perros con collares personalizados TikkiGuau"
         fill
         className="hidden object-cover object-right md:block"

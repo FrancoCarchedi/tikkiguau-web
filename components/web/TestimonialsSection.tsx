@@ -1,73 +1,76 @@
-import { Star, Camera } from "lucide-react";
+import { Camera, Star } from "lucide-react";
 
-const TESTIMONIALS = [
+type Testimonial = {
+  avatar?: string;
+  title: string;
+  product: string;
+  rating: number;
+  text: string;
+};
+
+const TESTIMONIALS: Testimonial[] = [
   {
-    ownerName: "Valentina G.",
-    petName: "Luna",
-    petEmoji: "🐶",
-    product: "Combo Collar + Correa",
-    rating: 5,
-    text: "¡Quedó espectacular! El collar de Luna tiene su nombre con letras rosas y unos corazoncitos. La calidad es increíble, se nota que está hecho con amor. Ya lo lavé varias veces y sigue igual.",
-    colorIndex: 5, // Rosado
-  },
-  {
-    ownerName: "Mateo R.",
-    petName: "Thor",
-    petEmoji: "🐕",
+    avatar: "/images/testimonials/churrita.jpeg",
+    title: "Dueña de Churrita",
     product: "Collar personalizado",
     rating: 5,
-    text: "Pedí el collar en azul con el nombre de Thor y unas patitas. Llegó súper rápido y la atención fue excelente. Thor lo usa todos los días y no se ha deteriorado para nada.",
-    colorIndex: 7, // Azul
+    text: "Amamos el collar, le queda precioso y es super original.",
   },
   {
-    ownerName: "Camila F.",
-    petName: "Coco",
-    petEmoji: "🐾",
-    product: "Correa personalizada",
-    rating: 5,
-    text: "La correa es hermosa, en verde oscuro con estrellitas. La gente en el parque siempre nos para a preguntar dónde la compré. Sin dudas voy a volver a pedir.",
-    colorIndex: 8, // Verde oscuro
-  },
-  {
-    ownerName: "Sofía M.",
-    petName: "Mia",
-    petEmoji: "🐱",
+    avatar: "/images/testimonials/preta.jpeg",
+    title: "Dueña de Preta",
     product: "Collar personalizado",
     rating: 5,
-    text: "Mi gata tiene el collar violeta con su nombre y una lunita. Es súper liviano y ella lo tolera perfectamente. El proceso de diseño fue muy fácil y divertido.",
-    colorIndex: 6, // Violeta
+    text: "¡Ella disfruta mucho su nuevo collar! ¡Muy hermoso, gracias!",
   },
   {
-    ownerName: "Lucas P.",
-    petName: "Rocky",
-    petEmoji: "🐶",
-    product: "Combo Collar + Correa",
-    rating: 5,
-    text: "Pedí el combo completo en rojo para Rocky. Los apliques de metal son muy resistentes, ya pasaron meses y están como el primer día. Totalmente recomendable.",
-    colorIndex: 0, // Rojo
-  },
-  {
-    ownerName: "Julieta H.",
-    petName: "Nala",
-    petEmoji: "🐕",
+    avatar: "/images/testimonials/ossa.jpeg",
+    title: "Dueña de Ossa",
     product: "Collar personalizado",
     rating: 5,
-    text: "Increíble la atención y el resultado. Elegí el color naranja con el nombre de Nala y unos emojis de flores. La comunicación por WhatsApp fue muy rápida y clara.",
-    colorIndex: 3, // Naranja
+    text: "Me encantó la historia del nombre de tu marca. Después de ver tu video tuve que escribirte para pedirte un collar para mi bebita, me encató lo que creaste.",
+  },
+  {
+    avatar: "/images/testimonials/mora.jpeg",
+    title: "Dueña de Mora",
+    product: "Collar personalizado",
+    rating: 5,
+    text: "Después de mucho tiempo pude encontrar el video donde aparece mi hija Mora. ¡Quiero agradecerles por el collar hermoso!",
+  },
+  {
+    avatar: "/images/testimonials/dona.jpeg",
+    title: "Dueña de Dona",
+    product: "Collar personalizado",
+    rating: 5,
+    text: "Ya retiramos los collares para Dona y Juani. ¡Están hermosos!",
+  },
+  {
+    avatar: "/images/testimonials/azula.jpeg",
+    title: "Dueña de Azula",
+    product: "Collar personalizado",
+    rating: 5,
+    text: "Le quedó hermoso el collar a Azula. ¡Gracias por el trabajo!",
   },
 ];
 
-const COLLAR_COLORS_HEX = [
-  "#C70F11", // Rojo
-  "#2590B4", // Celeste
-  "#84A308", // Verde manzana
-  "#D93C1B", // Naranja
-  "#111111", // Negro
-  "#C7295C", // Rosado
-  "#4B2A61", // Violeta
-  "#1C5394", // Azul
-  "#2A6A5C", // Verde oscuro
-];
+function Avatar({ src, title }: { src?: string; title: string }) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={title}
+        className="w-20 h-20 rounded-2xl shrink-0 object-cover"
+      />
+    );
+  }
+
+  return (
+    <div className="relative w-20 h-20 rounded-2xl shrink-0 flex items-center justify-center overflow-hidden bg-zinc-100">
+      <Camera className="w-7 h-7 text-zinc-300" strokeWidth={1.5} />
+    </div>
+  );
+}
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -85,46 +88,10 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function PlaceholderAvatar({
-  colorIndex,
-  petEmoji,
-}: {
-  colorIndex: number;
-  petEmoji: string;
-}) {
-  const hex = COLLAR_COLORS_HEX[colorIndex];
-  return (
-    <div
-      className="relative w-16 h-16 rounded-2xl shrink-0 flex items-center justify-center overflow-hidden"
-      style={{ backgroundColor: `${hex}22` }}
-    >
-      {/* dot pattern */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `radial-gradient(circle, ${hex}33 1px, transparent 1px)`,
-          backgroundSize: "12px 12px",
-        }}
-      />
-      {/* camera icon hint */}
-      <div className="relative flex flex-col items-center gap-0.5">
-        <Camera className="w-5 h-5" style={{ color: hex, opacity: 0.6 }} />
-        <span className="text-lg leading-none">{petEmoji}</span>
-      </div>
-      {/* top-right "photo" badge */}
-      <div
-        className="absolute top-1 right-1 w-2 h-2 rounded-full opacity-60"
-        style={{ backgroundColor: hex }}
-      />
-    </div>
-  );
-}
-
 export default function TestimonialsSection() {
   return (
     <section id="testimonios" className="py-20 bg-zinc-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-left md:text-center mb-14">
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#C70F11] mb-3">
             Lo que dicen nuestros clientes
@@ -133,49 +100,29 @@ export default function TestimonialsSection() {
             Testimonios
           </h2>
           <p className="text-zinc-500 max-w-xl mx-auto">
-            Más de cien mascotas ya tienen su collar único. 
+            Más de cien mascotas ya tienen su collar único.
             <br />
             Esto es lo que nos cuentan sus dueños.
           </p>
         </div>
 
-        {/* Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TESTIMONIALS.map((t) => (
             <article
-              key={t.ownerName}
+              key={t.title}
               className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 flex flex-col gap-4 hover:shadow-md transition-shadow"
             >
-              {/* Top: avatar + name + product */}
               <div className="flex items-start gap-4">
-                <PlaceholderAvatar
-                  colorIndex={t.colorIndex}
-                  petEmoji={t.petEmoji}
-                />
-                <div className="min-w-0">
-                  <p className="font-semibold text-zinc-800 truncate">
-                    {t.ownerName}
-                  </p>
-                  <p className="text-sm text-zinc-400 truncate">
-                    Dueño/a de{" "}
-                    <span className="font-medium text-zinc-600">{t.petName}</span>
-                  </p>
-                  <span
-                    className="inline-block mt-1.5 text-xs px-2 py-0.5 rounded-full font-medium"
-                    style={{
-                      backgroundColor: `${COLLAR_COLORS_HEX[t.colorIndex]}18`,
-                      color: COLLAR_COLORS_HEX[t.colorIndex],
-                    }}
-                  >
+                <Avatar src={t.avatar} title={t.title} />
+                <div className="min-w-0 flex flex-col gap-1.5">
+                  <p className="font-semibold text-zinc-800 truncate">{t.title}</p>
+                  <span className="inline-block w-fit text-xs px-2 py-0.5 rounded-full font-medium bg-[#C70F11]/10 text-[#C70F11]">
                     {t.product}
                   </span>
+                  <StarRating rating={t.rating} />
                 </div>
               </div>
 
-              {/* Stars */}
-              <StarRating rating={t.rating} />
-
-              {/* Review text */}
               <p className="text-sm text-zinc-600 leading-relaxed flex-1">
                 &ldquo;{t.text}&rdquo;
               </p>
