@@ -10,32 +10,32 @@ type GalleryItem = {
 const ITEMS: GalleryItem[] = [
   {
     label: "Collar personalizado",
-    imageSrc: "/images/vamos_argentina.png",
+    imageSrc: "/images/vamos_argentina.webp",
     imageAlt: "Collar personalizado",
   },
   {
     label: "Collares personalizados con emojis",
-    imageSrc: "/images/lola.PNG",
+    imageSrc: "/images/lola.webp",
     imageAlt: "Collares personalizados con emojis",
   },
   {
     label: "Diseño con letras",
-    imageSrc: "/images/oreo.PNG",
+    imageSrc: "/images/oreo.webp",
     imageAlt: "Correa personalizada con letras",
   },
   {
     label: "Vamos Argentina!",
-    imageSrc: "/images/pet_livery.PNG",
+    imageSrc: "/images/pet_livery.webp",
     imageAlt: "¡Vamos Argentina! Collar personalizado de Argentina",
   },
   {
     label: "Diseño con emojis",
-    imageSrc: "/images/collares.PNG",
+    imageSrc: "/images/collares.webp",
     imageAlt: "Empaque personalizado de productos de TikkiGuau",
   },
   {
     label: "Diseño con emojis",
-    imageSrc: "/images/mora.PNG",
+    imageSrc: "/images/mora.webp",
     imageAlt: "Empaque personalizado de productos de TikkiGuau",
   },
 ];

@@ -30,7 +30,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="shrink-0">
             <Image
-              src="/images/tikkiguau-logo.png"
+              src="/images/tikkiguau-logo.webp"
               alt="TikkiGuau"
               width={140}
               height={50}
