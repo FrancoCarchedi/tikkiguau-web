@@ -32,7 +32,7 @@ type Props = {
 }
 
 const deliveryLabels: Record<string, string> = {
-  PICKUP: 'Retiro en tienda',
+  PICKUP: 'Retiro presencial',
   CORREO_DOMICILIO: 'Envío a domicilio',
   CORREO_SUCURSAL: 'Envío a sucursal',
 }

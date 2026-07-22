@@ -28,7 +28,7 @@ import { OrderStatusBadge } from './order-status-badge'
 import { OrderDetailSheet } from './order-detail-sheet'
 
 const deliveryLabels: Record<string, string> = {
-  PICKUP: 'Retiro en tienda',
+  PICKUP: 'Retiro presencial',
   CORREO_DOMICILIO: 'Envío a domicilio',
   CORREO_SUCURSAL: 'Envío a sucursal',
 }
@@ -162,7 +162,7 @@ export function OrdersTable() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos los envíos</SelectItem>
-            <SelectItem value="PICKUP">Retiro en tienda</SelectItem>
+            <SelectItem value="PICKUP">Retiro presencial</SelectItem>
             <SelectItem value="CORREO_DOMICILIO">Envío a domicilio</SelectItem>
             <SelectItem value="CORREO_SUCURSAL">Envío a sucursal</SelectItem>
           </SelectContent>

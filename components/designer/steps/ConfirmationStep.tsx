@@ -29,7 +29,7 @@ interface ConfirmationStepProps {
 }
 
 const DELIVERY_LABELS: Record<DeliveryData['method'], string> = {
-  PICKUP: 'Retiro en domicilio',
+  PICKUP: 'Retiro presencial',
   CORREO_SUCURSAL: 'Retiro por sucursal',
   CORREO_DOMICILIO: 'Envío a domicilio',
 };

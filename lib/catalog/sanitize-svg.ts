@@ -36,6 +36,8 @@ const ALLOWED_ATTRS = new Set([
   'opacity',
   'fill-rule',
   'clip-rule',
+  'fill-opacity',
+  'stroke-opacity',
 ])
 
 const EVENT_HANDLER = /^on[a-z]+$/i
@@ -52,6 +54,40 @@ function normalizeTagName(tag: string): string {
   return tag.replace(/^\//, '').split(/\s/)[0]?.toLowerCase() ?? ''
 }
 
+function sanitizeAttributes(attrs: string): string | null {
+  const attrRegex = /([a-zA-Z_:][\w:.-]*)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/g
+  const kept: string[] = []
+  let attrMatch: RegExpExecArray | null
+
+  while ((attrMatch = attrRegex.exec(attrs)) !== null) {
+    const originalName = attrMatch[1]
+    const attrName = originalName.toLowerCase()
+    const attrValue = attrMatch[2]
+
+    if (EVENT_HANDLER.test(attrName)) {
+      return null
+    }
+
+    // Namespaced attrs (xmlns:xlink, xml:space, data-*) se descartan;
+    // solo se conservan atributos permitidos de forma explícita.
+    if (!ALLOWED_ATTRS.has(attrName)) {
+      continue
+    }
+
+    // Preservar casing original (viewBox, etc. son case-sensitive en SVG).
+    kept.push(`${originalName}=${attrValue}`)
+  }
+
+  return kept.join(' ')
+}
+
+/**
+ * Sanitiza markup SVG de emojis del CMS.
+ * - Rechaza tags peligrosos o handlers de eventos.
+ * - Elimina atributos no permitidos (p. ej. style, version, data-*)
+ *   en lugar de fallar: los SVG exportados de bancos de íconos suelen traerlos.
+ * - Normaliza fills a currentColor para tintado en el diseñador.
+ */
 export function sanitizeSvgMarkup(raw: string): string | null {
   const trimmed = raw.trim()
   if (!trimmed || trimmed.length > MAX_SVG_LENGTH) {
@@ -64,27 +100,44 @@ export function sanitizeSvgMarkup(raw: string): string | null {
 
   const cleaned = stripDangerousContent(trimmed)
   const tagRegex = /<\/?([a-zA-Z][\w:-]*)([^>]*)>/g
+  let result = ''
+  let lastIndex = 0
   let match: RegExpExecArray | null
 
   while ((match = tagRegex.exec(cleaned)) !== null) {
-    const tag = normalizeTagName(match[1])
+    result += cleaned.slice(lastIndex, match.index)
+    lastIndex = tagRegex.lastIndex
+
+    const rawTag = match[1]
+    const tag = normalizeTagName(rawTag)
+    const isClosing = match[0].startsWith('</')
+    const isSelfClosing = /\/\s*>$/.test(match[0])
+
     if (!ALLOWED_TAGS.has(tag)) {
       return null
     }
 
-    const attrs = match[2] ?? ''
-    const attrRegex = /([a-zA-Z_:][\w:.-]*)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/g
-    let attrMatch: RegExpExecArray | null
-
-    while ((attrMatch = attrRegex.exec(attrs)) !== null) {
-      const attrName = attrMatch[1].toLowerCase()
-      if (EVENT_HANDLER.test(attrName) || !ALLOWED_ATTRS.has(attrName)) {
-        return null
-      }
+    if (isClosing) {
+      result += `</${tag}>`
+      continue
     }
+
+    const sanitizedAttrs = sanitizeAttributes(match[2] ?? '')
+    if (sanitizedAttrs === null) {
+      return null
+    }
+
+    const attrsPart = sanitizedAttrs.length > 0 ? ` ${sanitizedAttrs}` : ''
+    result += isSelfClosing ? `<${tag}${attrsPart} />` : `<${tag}${attrsPart}>`
   }
 
-  return cleaned.replace(/fill="[^"]*"/gi, 'fill="currentColor"')
+  result += cleaned.slice(lastIndex)
+
+  if (!/^<svg[\s>]/i.test(result.trim())) {
+    return null
+  }
+
+  return result.replace(/\bfill=(["'])[^"']*\1/gi, 'fill="currentColor"')
 }
 
 export function isValidSvgMarkup(raw: string): boolean {

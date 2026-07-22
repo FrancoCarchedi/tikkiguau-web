@@ -126,7 +126,7 @@ export function CatalogPricingPanel() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-xs text-muted-foreground">
-            El retiro en domicilio no tiene costo (PICKUP = $0).
+            El retiro presencial no tiene costo (PICKUP = $0).
           </p>
           {shippingPrices?.map((price) => (
             <div key={price.id} className="rounded-lg border p-4">
