@@ -27,6 +27,10 @@ import {
   buildOrderItems,
   calculateProductsTotal,
 } from '@/lib/orders/build-order-items';
+import {
+  validateDeliveryData,
+  validateUserData,
+} from '@/lib/designer/validation';
 import type {
   CartItem,
   CollarDesign,
@@ -139,6 +143,7 @@ export default function DesignerPage() {
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [collarSelectedId, setCollarSelectedId] = useState<string | null>(null);
   const [leashSelectedId, setLeashSelectedId] = useState<string | null>(null);
+  const [forceFormErrors, setForceFormErrors] = useState(false);
 
   const currentFlow: StepKey[] = productType ? FLOWS[productType] : ['product'];
   const totalSteps = currentFlow.length;
@@ -251,27 +256,25 @@ export default function DesignerPage() {
       return leashDesign.elements.length >= MIN_LEASH_ELEMENTS;
     }
     if (currentStepKey === 'user-data') {
-      return Boolean(
-        userData.name.trim() &&
-          userData.lastName.trim() &&
-          userData.email.trim() &&
-          userData.phone.trim()
-      );
+      return validateUserData(userData).success;
     }
     if (currentStepKey === 'delivery') {
-      if (deliveryData.method === 'CORREO_DOMICILIO') {
-        return Boolean(
-          deliveryData.address?.trim() &&
-            deliveryData.city?.trim() &&
-            deliveryData.postalCode?.trim()
-        );
-      }
-      if (deliveryData.method === 'CORREO_SUCURSAL') {
-        return Boolean(deliveryData.city?.trim() && deliveryData.postalCode?.trim());
-      }
-      return true;
+      return validateDeliveryData(deliveryData).success;
     }
     return true;
+  };
+
+  const handleNext = () => {
+    const isFormStep =
+      currentStepKey === 'user-data' || currentStepKey === 'delivery';
+
+    if (!canProceed()) {
+      if (isFormStep) setForceFormErrors(true);
+      return;
+    }
+
+    setForceFormErrors(false);
+    setStep((current) => current + 1);
   };
 
   const handleSubmit = async () => {
@@ -479,11 +482,19 @@ export default function DesignerPage() {
           )}
 
           {currentStepKey === 'user-data' && (
-            <UserDataStep data={userData} onChange={setUserData} />
+            <UserDataStep
+              data={userData}
+              onChange={setUserData}
+              forceShowErrors={forceFormErrors}
+            />
           )}
 
           {currentStepKey === 'delivery' && (
-            <DeliveryStep data={deliveryData} onChange={setDeliveryData} />
+            <DeliveryStep
+              data={deliveryData}
+              onChange={setDeliveryData}
+              forceShowErrors={forceFormErrors}
+            />
           )}
 
           {currentStepKey === 'confirmation' && (
@@ -504,7 +515,10 @@ export default function DesignerPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setStep((current) => current - 1)}
+                  onClick={() => {
+                    setForceFormErrors(false);
+                    setStep((current) => current - 1);
+                  }}
                   className="rounded-xl h-10 px-4"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" /> Atrás
@@ -516,8 +530,12 @@ export default function DesignerPage() {
               {step < totalSteps && (
                 <Button
                   type="button"
-                  onClick={() => setStep((current) => current + 1)}
-                  disabled={!canProceed()}
+                  onClick={handleNext}
+                  disabled={
+                    currentStepKey !== 'user-data' &&
+                    currentStepKey !== 'delivery' &&
+                    !canProceed()
+                  }
                   className="bg-primary text-primary-foreground rounded-xl font-semibold px-6 h-10"
                 >
                   {nextButtonLabel}
