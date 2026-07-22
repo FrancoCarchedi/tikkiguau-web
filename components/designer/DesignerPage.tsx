@@ -342,7 +342,7 @@ export default function DesignerPage() {
             ← Inicio
           </Link>
           <Image
-            src="/images/tikkiguau-logo.png"
+            src="/images/tikkiguau-logo.webp"
             alt="TikkiGuau"
             width={200}
             height={56}

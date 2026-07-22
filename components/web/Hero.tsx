@@ -36,7 +36,7 @@ export default function Hero() {
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-56 md:py-24">
         <div className="max-w-xl">
-          <h1 className="text-2xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
             Accesorios únicos para mascotas únicas
           </h1>
           <p className="mt-6 text-base sm:text-xl text-white/90 leading-relaxed drop-shadow-sm">
