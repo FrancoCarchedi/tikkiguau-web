@@ -171,6 +171,21 @@ export default function ElementEditor({
         </p>
       </div>
 
+      <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground space-y-1.5 text-left">
+        <p className="font-medium text-foreground">Cómo personalizar</p>
+        <ul className="list-disc pl-4 space-y-1 leading-relaxed">
+          <li>
+            Tocá {showLetters ? 'las letras o los emojis' : 'los emojis'} de abajo para agregarlos.
+          </li>
+          <li>
+            Seleccioná un elemento de la lista para cambiar su color.
+          </li>
+          <li>
+            Arrastrá los elementos para cambiar el orden.
+          </li>
+        </ul>
+      </div>
+
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-foreground">

@@ -22,8 +22,9 @@ const DELIVERY_OPTIONS: {
   {
     method: 'PICKUP',
     icon: Home,
-    title: 'Retiro en domicilio',
-    description: 'Pasás a buscar tu pedido en nuestro domicilio (CABA).',
+    title: 'Retiro presencial',
+    description:
+      'Pasás a buscar tu pedido directamente en nuestra dirección (San Miguel, Provincia de Buenos Aires).',
   },
   {
     method: 'CORREO_SUCURSAL',
