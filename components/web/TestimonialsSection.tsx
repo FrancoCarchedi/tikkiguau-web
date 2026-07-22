@@ -28,7 +28,7 @@ const TESTIMONIALS: Testimonial[] = [
     title: "Dueña de Ossa",
     product: "Collar personalizado",
     rating: 5,
-    text: "Me encantó la historia del nombre de tu marca. Después de ver tu video tuve que escribirte para pedirte un collar para mi bebita, me encató lo que creaste.",
+    text: "Me llegaron super rápido los collares. ¡Están hermosos!",
   },
   {
     avatar: "/images/testimonials/mora.jpeg",
@@ -49,7 +49,7 @@ const TESTIMONIALS: Testimonial[] = [
     title: "Dueña de Azula",
     product: "Collar personalizado",
     rating: 5,
-    text: "Le quedó hermoso el collar a Azula. ¡Gracias por el trabajo!",
+    text: "Me encantó la historia del nombre de tu marca. Después de ver tu video tuve que escribirte para pedirte un collar para mi bebita, me encató lo que creaste.",
   },
 ];
 
