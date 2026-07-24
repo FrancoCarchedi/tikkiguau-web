@@ -464,7 +464,7 @@ export default function DesignerPage() {
                 mode="leash"
                 size={leashDesign.leashSize}
                 title="Personalizá tu correa"
-                subtitle={`Agregá emojis (${leashDesign.elements.length}/${MAX_LEASH_ELEMENTS}, mínimo ${MIN_LEASH_ELEMENTS})`}
+                subtitle={`Agregá letras y emojis (${leashDesign.elements.length}/${MAX_LEASH_ELEMENTS}, mínimo ${MIN_LEASH_ELEMENTS})`}
                 selectedElementId={leashSelectedId}
                 onSelectElement={setLeashSelectedId}
               />
