@@ -52,7 +52,7 @@ const LeashPreview = forwardRef<HTMLDivElement, LeashPreviewProps>(
 
         {elements.length === 0 && (
           <p className="absolute bottom-4 text-sm text-muted-foreground italic">
-            Agrega emojis a la correa
+            Agrega letras y emojis a la correa
           </p>
         )}
       </div>

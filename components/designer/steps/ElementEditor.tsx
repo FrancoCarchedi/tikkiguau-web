@@ -139,7 +139,7 @@ export default function ElementEditor({
   );
 
   const isFull = elements.length >= maxElements;
-  const showLetters = mode === 'collar';
+  const showLetters = mode === 'collar' || mode === 'leash';
   const activeLetters = new Set(getActiveLetters(catalog));
   const activeEmojis = getActiveEmojis(catalog, size);
   const defaultColor = getDefaultElementColor(catalog);
