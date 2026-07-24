@@ -14,19 +14,22 @@ context: |
 
   ## Estado actual de implementación
 
-  **Implementado:**
-  - CMS completo: auth Better Auth, gestión de órdenes, gestión de tiendas (`/admin`, `/admin/tiendas`)
-  - API routes protegidas: `GET/PATCH /api/orders/[id]`, `GET /api/orders`, `GET/POST /api/stores`, `PATCH /api/stores/[id]`
-  - Homepage (`/`) con todas las secciones: Navbar, Hero, Productos, Galería, Medidas, Envíos, Testimonios, FAQ, Footer
-  - Tipos y catálogo en `types/collar.ts` (precios, colores, emojis, tallas)
-  - Componentes del diseñador: `CollarPreview`, `LeashPreview`, emojis SVG en `components/designer/custom-emojis/`
+  **Implementado (sitio + diseñador cerrados):**
+  - CMS: auth Better Auth, órdenes, tiendas (`/admin`, `/admin/tiendas`)
+  - Catálogo dinámico en CMS: colores base, paleta de elementos, letras, emojis (SVG), precios de productos y envíos; API pública de catálogo
+  - Homepage (`/`): Navbar, Hero, Productos, Galería, Medidas, Envíos, Testimonios, FAQ, Footer
+  - SEO: metadata OG/Twitter, JSON-LD, `robots.ts`, `sitemap.ts`; `/admin` con `noindex`
+  - Diseñador `/disenar`: stepper completo (producto → colores → diseño → carrito → contacto → entrega → confirmación)
+  - Personalización: letras y emojis en collar **y** correa; guía “Cómo personalizar”; límites MIN/MAX vigentes
+  - Validación Zod de contacto y entrega (cliente + `POST /api/orders`); guest checkout sin `storeId`
+  - Confirmación con número de orden (`TK-XXXX`) y CTA a WhatsApp
+  - Specs OpenSpec activas bajo `openspec/specs/`; changes archivados en `openspec/changes/archive/`
 
-  **Pendiente (prioridad del sitio web):**
-  - Ruta `/disenar` con stepper completo (referenciada desde Navbar/Hero/Productos pero aún no existe)
-  - `POST /api/orders` para crear órdenes desde el sitio web (guest checkout)
-  - Pantalla de confirmación con número de orden (formato `TK-XXXX`) y CTA a WhatsApp
-  - SEO: sitemap, robots.txt, metadata Open Graph
-  - Fase 5: reemplazar placeholders de imágenes y validar copy del FAQ con la clienta
+  **Pendiente / follow-ups menores (no bloquean el lanzamiento del diseñador):**
+  - Validar copy final del FAQ y testimonios con Melizza si quedan placeholders
+  - Assets de imagen OG dedicados u otras mejoras de marketing puntuales
+
+  **Fuera de alcance OpenSpec de este repo:** `tikkiguau-tiendas` (paridad de diseñador documentada en `docs/DOCUMENTATION.md`).
 
   ## Stack técnico
 
@@ -44,24 +47,27 @@ context: |
 
   ```
   app/
-    page.tsx                    → Homepage
-    layout.tsx, providers.tsx, globals.css
-    admin/
-      sign-in/                  → Login CMS
-      (protected)/              → Dashboard órdenes, tiendas, hooks y componentes admin
+    page.tsx, layout.tsx, robots.ts, sitemap.ts
+    disenar/                  → Diseñador público
+    admin/                    → CMS (sign-in + protected)
     api/
-      auth/[...all]/            → Better Auth
-      orders/, orders/[id]/     → CRUD órdenes (admin)
-      stores/, stores/[id]/     → CRUD tiendas (admin)
+      auth/[...all]/          → Better Auth
+      orders/, orders/[id]/   → Órdenes (público POST + admin)
+      stores/, stores/[id]/   → Tiendas (admin)
+      catalog/                → Catálogo CMS / lectura pública
   components/
-    web/                        → Secciones del sitio público
-    designer/                   → Previews y emojis del diseñador
-    admin/                      → Sidebar, diálogos admin
-    ui/                         → shadcn/ui primitivos
-  types/collar.ts               → Fuente de verdad: catálogo, colores, tipos del diseñador
-  lib/                          → auth, auth-client, prisma, env (zod), utils (cn)
-  prisma/schema.prisma          → Modelos de BD
-  prisma/seed.ts                → Seeder admin (`npm run seed`)
+    web/                      → Landing
+    designer/                 → Stepper, previews, ElementEditor
+    catalog/                  → CatalogProvider / helpers UI
+    admin/, ui/
+  lib/
+    designer/validation.ts    → Zod contacto + entrega
+    orders/, catalog/, auth, prisma, env
+  openspec/
+    specs/                    → Specs activas
+    changes/archive/          → Changes cerrados
+  types/collar.ts, types/catalog.ts
+  prisma/schema.prisma, seed.ts
   ```
 
   ## Convenciones de código
@@ -72,31 +78,27 @@ context: |
   - API routes: verificar sesión con `auth.api.getSession({ headers: await headers() })` antes de operaciones admin
   - Validación de env vars centralizada en `lib/env.ts` con zod
   - Preferir composición, funciones con responsabilidad única, nombres descriptivos en español para UI/copy y en inglés para código
-  - Reutilizar tipos de `types/collar.ts` en lugar de duplicar constantes de catálogo
+  - Catálogo editable: leer vía `CatalogProvider` / helpers de `lib/catalog/`; no hardcodear precios/colores/emojis activos en UI
+  - Tipos de diseño en `types/collar.ts`; tipos de catálogo público en `types/catalog.ts`
   - UI copy y contenido orientado al usuario final en español (Argentina)
 
   ## Dominio de negocio
 
   **Modelo comercial:** reserva de pedido, no e-commerce con pasarela. Guest checkout sin registro de usuarios en el sitio web.
 
-  **Productos** (precios en `types/collar.ts`, fuente de verdad del código):
-  | Producto | Precio ARS | Piezas |
-  |----------|------------|--------|
-  | Collar   | $20.000    | 6      |
-  | Correa   | $26.000    | 10     |
-  | Combo    | $39.000    | 16 (6 collar + 10 correa) |
+  **Productos y precios:** gestionados en CMS (ARS). Snapshot en cada orden (`orderItems` + `totalAmount`); no se recalculan pedidos viejos al cambiar el catálogo.
 
-  **Personalización:** colores de collar/correa, letras y emojis custom. Catálogo hardcodeado en frontend (`COLLAR_COLORS`, `CUSTOM_EMOJIS`, `ELEMENT_COLORS`). Mínimo 3 y máximo 6/10 piezas según producto.
+  **Personalización:** colores de base, letras y emojis del catálogo activo. Collar y correa admiten letras y emojis. Mínimo 3 piezas; máximo 6 (collar) / 10 (correa).
 
-  **Flujo web (objetivo):**
+  **Flujo web (implementado):**
   1. Cliente diseña en `/disenar` → carrito con uno o más ítems
   2. Datos: nombre, apellido, email, teléfono (sin palabra clave de tienda)
-  3. Método de entrega: `PICKUP` | `CORREO_DOMICILIO` | `CORREO_SUCURSAL`
+  3. Método de entrega: `PICKUP` | `CORREO_DOMICILIO` | `CORREO_SUCURSAL` (campos validados según método)
   4. Orden creada con `storeId: null`, estado `PENDING`, `orderItems` JSON con diseño completo
   5. Confirmación muestra número de orden; Melizza contacta por WhatsApp para total final (incl. envío) y datos de transferencia
   6. Pago exclusivamente por transferencia bancaria; comprobante por WhatsApp citando número de orden
 
-  **Diferencia vs app de tiendas (referencia, fuera de alcance):** órdenes de tienda tienen `storeId`; las del sitio web no. La app de tiendas usa pago en efectivo en tienda física.
+  **Diferencia vs app de tiendas (referencia, fuera de alcance OpenSpec):** órdenes de tienda tienen `storeId` y keyword; las del sitio web no. La app de tiendas usa pago en efectivo en tienda física. Paridad de diseñador documentada en `docs/DOCUMENTATION.md`.
 
   **Contacto:**
   - WhatsApp: +54 9 11 2181-6245 (`wa.me/5491121816245`)
@@ -117,6 +119,7 @@ context: |
   - Usuario admin único, creado con `npm run seed` (requiere ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD)
   - Dashboard: tabla de órdenes, cambio de estado, carga manual de tracking Correo Argentino
   - Tiendas: listado, creación, activación/desactivación
+  - Catálogo: colores, letras, emojis, precios de productos y envíos
 
   ## Variables de entorno requeridas
 
@@ -131,18 +134,12 @@ context: |
 
   ## Marca visual
 
-  Color principal: `#C70F11` (rojo TikkiGuau). Paleta completa en `app/globals.css` (`--brand-*`) y `types/collar.ts` (`COLLAR_COLORS`).
+  Color principal: `#C70F11` (rojo TikkiGuau). Paleta en `app/globals.css` (`--brand-*`); colores de producto vienen del catálogo CMS.
 
-  ## Roadmap cercano (catálogo dinámico en CMS)
+  ## Roadmap
 
-  El catálogo hoy está hardcodeado en `types/collar.ts`. La próxima feature prioritaria es persistirlo en Prisma y gestionarlo desde `/admin`:
-  - Colores de collar/correa (CRUD, activar/desactivar)
-  - Letras del abecedario con colores disponibles por letra (las letras son fijas A–Z; lo configurable son sus colores)
-  - Emojis personalizados con colores (agregar, quitar, activar/desactivar; los SVG viven en `components/designer/custom-emojis/`)
-  - Precios de productos: collar, correa, combo
-  - Precios de envío: Correo Argentino a domicilio y a sucursal (retiro en domicilio sin costo)
-
-  Las órdenes existentes guardan snapshot del diseño en `orderItems` (JSON); los cambios de catálogo no deben alterar pedidos ya creados.
+  Sitio público, diseñador, SEO y catálogo dinámico CMS están cerrados (ver archives en `openspec/changes/archive/`).
+  La próxima feature se define en un change OpenSpec nuevo; no hay change activo pendiente.
 
 rules:
   proposal:
