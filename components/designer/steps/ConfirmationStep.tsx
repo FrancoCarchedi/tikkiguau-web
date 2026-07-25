@@ -97,9 +97,9 @@ export default function ConfirmationStep({
           </div>
           <p className="text-xs text-muted-foreground">
             Incluye productos ({formatArsPrice(productsTotal)}) + envío (
-            {shippingAmount === 0 ? 'sin costo' : formatArsPrice(shippingAmount)}).
-            Citá el número de orden <strong>{orderNumber}</strong> en el concepto de la
-            transferencia.
+            {shippingAmount === 0 ? 'sin costo' : formatArsPrice(shippingAmount)}
+            ). Cuando hagas la transferencia, enviá el comprobante por WhatsApp e
+            indicá tu número de orden <strong>{orderNumber}</strong>.
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export default function ConfirmationStep({
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
-            Consultas por WhatsApp
+            Enviar comprobante por WhatsApp
           </a>
           <Link
             href="/"
@@ -216,7 +216,7 @@ export default function ConfirmationStep({
             )}
             {deliveryData.branchPreference && (
               <p>
-                <span className="font-medium text-foreground">Sucursal preferida:</span>{' '}
+                <span className="font-medium text-foreground">Dirección de sucursal:</span>{' '}
                 {deliveryData.branchPreference}
               </p>
             )}

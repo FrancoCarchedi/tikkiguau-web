@@ -22,7 +22,8 @@ context: |
   - Diseñador `/disenar`: stepper completo (producto → colores → diseño → carrito → contacto → entrega → confirmación)
   - Personalización: letras y emojis en collar **y** correa; guía “Cómo personalizar”; límites MIN/MAX vigentes
   - Validación Zod de contacto y entrega (cliente + `POST /api/orders`); guest checkout sin `storeId`
-  - Confirmación con número de orden (`TK-XXXX`) y CTA a WhatsApp
+  - Confirmación con número de orden (`TK-XXXX`), datos Mercado Pago en UI y CTA WhatsApp (consultas/comprobante)
+  - Emails transaccionales (Resend + React Email): reserva cliente+Melizza; APPROVED/REJECTED/DELIVERED con allowlist; reenvío manual en CMS
   - Specs OpenSpec activas bajo `openspec/specs/`; changes archivados en `openspec/changes/archive/`
 
   **Pendiente / follow-ups menores (no bloquean el lanzamiento del diseñador):**
@@ -138,7 +139,8 @@ context: |
 
   ## Roadmap
 
-  Sitio público, diseñador, SEO y catálogo dinámico CMS están cerrados (ver archives en `openspec/changes/archive/`).
+  Sitio público, diseñador, SEO, catálogo dinámico CMS y emails transaccionales están cerrados
+  (ver archives en `openspec/changes/archive/`).
   La próxima feature se define en un change OpenSpec nuevo; no hay change activo pendiente.
 
 rules:

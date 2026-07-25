@@ -59,6 +59,13 @@ export const createOrderSchema = z
     }
 
     if (data.deliveryMethod === 'CORREO_SUCURSAL') {
+      if (!data.address || data.address.length < 5) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'La dirección de sucursal es obligatoria',
+          path: ['address'],
+        })
+      }
       if (!data.city || data.city.length < 2) {
         ctx.addIssue({
           code: 'custom',

@@ -91,3 +91,8 @@ El panel ser√° de acceso exclusivo para el Administrador para procesar y hacer s
 - Integraci√≥n del carrito de compras capaz de acumular productos individuales o combos.
 - Previsualizador interactivo que construya el JSON final que se enviar√° en el pedido.
 - Flujo de checkout que capture los datos del contacto, sume los costos log√≠sticos seg√∫n el m√©todo de entrega seleccionado y culmine derivando al pago manual por WhatsApp.
+## Emails (Resend)
+
+Ver `.env.example` para `RESEND_API_KEY`, `EMAIL_FROM` y `ORDER_NOTIFY_EMAIL`.
+
+Hay que verificar el dominio de envÌo en el dashboard de Resend (registros DNS SPF/DKIM). Sin esas variables la app funciona pero no envÌa correos (la creaciÛn/actualizaciÛn de Ûrdenes no falla).

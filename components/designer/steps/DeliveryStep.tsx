@@ -202,10 +202,10 @@ export default function DeliveryStep({
       {data.method === 'CORREO_SUCURSAL' && (
         <div className="space-y-4 pt-2 border-t border-border">
           <div className="space-y-2">
-            <Label htmlFor="branchPreference">Ciudad / sucursal preferida</Label>
+            <Label htmlFor="branchPreference">Dirección de sucursal</Label>
             <Input
               id="branchPreference"
-              placeholder="Ej: Palermo, CABA"
+              placeholder="Ej: Av. Santa Fe 1234, Correo Argentino"
               value={data.branchPreference ?? ''}
               aria-invalid={Boolean(showError('branchPreference'))}
               aria-describedby={

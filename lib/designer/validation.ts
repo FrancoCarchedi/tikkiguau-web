@@ -104,6 +104,13 @@ export const deliveryDataSchema = z
     }
 
     if (data.method === 'CORREO_SUCURSAL') {
+      if (!data.branchPreference || data.branchPreference.length < 5) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Ingresá la dirección de la sucursal',
+          path: ['branchPreference'],
+        })
+      }
       if (!data.city || data.city.length < 2) {
         ctx.addIssue({
           code: 'custom',
