@@ -13,6 +13,11 @@ const envSchema = z.object({
   BETTER_AUTH_URL: z
     .url('BETTER_AUTH_URL debe ser una URL válida'),
 
+  // Emails transaccionales (Resend) — opcionales en build; requeridos al enviar
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(1).optional(),
+  ORDER_NOTIFY_EMAIL: z.email().optional(),
+
   // Usuario administrador (solo requeridas en tiempo de ejecución del seeder)
   ADMIN_NAME: z
     .string('ADMIN_NAME es requerida')

@@ -38,9 +38,9 @@ El paso de datos de contacto del diseñador SHALL validar nombre, apellido, emai
 
 El paso de entrega SHALL exigir campos distintos según el método elegido:
 
-- **PICKUP (retiro presencial):** no requiere dirección, ciudad ni código postal.
+- **PICKUP (retiro presencial):** no requiere dirección, ciudad ni código postal. La dirección de retiro no se expone en el sitio ni en emails.
 - **CORREO_DOMICILIO:** dirección (mínimo 5 caracteres), ciudad (mínimo 2) y código postal (4–12 caracteres alfanuméricos, espacios o guiones) son obligatorios.
-- **CORREO_SUCURSAL:** ciudad y código postal son obligatorios con las mismas reglas; la preferencia de sucursal MAY ser opcional en UI.
+- **CORREO_SUCURSAL:** dirección de sucursal (mínimo 5 caracteres), ciudad y código postal son obligatorios.
 
 #### Scenario: Retiro presencial sin dirección
 
@@ -52,9 +52,9 @@ El paso de entrega SHALL exigir campos distintos según el método elegido:
 - **WHEN** el usuario elige envío a domicilio y deja vacía la dirección, ciudad o código postal
 - **THEN** el sistema muestra errores en los campos faltantes o inválidos y no avanza
 
-#### Scenario: Retiro por sucursal sin ciudad o CP
+#### Scenario: Retiro por sucursal sin dirección de sucursal
 
-- **WHEN** el usuario elige retiro por sucursal sin ciudad o código postal válidos
+- **WHEN** el usuario elige retiro por sucursal sin dirección de sucursal, ciudad o código postal válidos
 - **THEN** el sistema bloquea el avance y muestra los errores correspondientes
 
 ### Requirement: Feedback de errores en el cliente

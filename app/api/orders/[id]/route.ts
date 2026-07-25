@@ -1,5 +1,11 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import {
+  isAutoEmailTransition,
+  mapOrderToEmailPayload,
+  sendStatusEmail,
+} from '@/lib/email/send-order-emails'
+import type { OrderStatus } from '@/emails/types'
 import { headers } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -36,6 +42,11 @@ export async function PATCH(
   const { id } = await params
   const body = await req.json()
 
+  const existing = await prisma.order.findUnique({ where: { id } })
+  if (!existing) {
+    return NextResponse.json({ message: 'Orden no encontrada' }, { status: 404 })
+  }
+
   const allowedFields = ['status', 'trackingCode']
   const updateData: Record<string, unknown> = {}
 
@@ -50,10 +61,23 @@ export async function PATCH(
     )
   }
 
+  const previousStatus = existing.status as OrderStatus
+  const nextStatus =
+    typeof updateData.status === 'string'
+      ? (updateData.status as OrderStatus)
+      : previousStatus
+
   const order = await prisma.order.update({
     where: { id },
     data: updateData,
   })
+
+  if (
+    typeof updateData.status === 'string' &&
+    isAutoEmailTransition(previousStatus, nextStatus)
+  ) {
+    await sendStatusEmail(mapOrderToEmailPayload(order))
+  }
 
   return NextResponse.json(order)
 }

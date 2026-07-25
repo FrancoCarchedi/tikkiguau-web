@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { OrderStatusBadge } from './order-status-badge'
 import { useUpdateOrder } from '../hooks/use-update-order'
+import { useResendOrderEmail } from '../hooks/use-resend-order-email'
 import type { Order, OrderStatus } from '../types/order'
 
 type Props = {
@@ -135,6 +136,7 @@ function OrderItemCard({ item }: { item: OrderItem }) {
 
 export function OrderDetailSheet({ order, open, onClose }: Props) {
   const { mutate: updateOrder, isPending } = useUpdateOrder()
+  const { mutate: resendEmail, isPending: isResending } = useResendOrderEmail()
 
   const [status, setStatus] = useState<OrderStatus>(order?.status ?? 'PENDING')
   const [trackingCode, setTrackingCode] = useState<string>(order?.trackingCode ?? '')
@@ -166,6 +168,21 @@ export function OrderDetailSheet({ order, open, onClose }: Props) {
       },
       onError: () => {
         toast.error('Error al actualizar la orden. Intentá de nuevo.')
+      },
+    })
+  }
+
+  function handleResendEmail() {
+    if (!order) return
+    resendEmail(order.id, {
+      onSuccess: () => {
+        toast.success('Email reenviado al cliente')
+      },
+      onError: (error) => {
+        const message =
+          error.response?.data?.message ??
+          'No se pudo reenviar el email. Revisá la configuración de Resend.'
+        toast.error(message)
       },
     })
   }
@@ -314,6 +331,17 @@ export function OrderDetailSheet({ order, open, onClose }: Props) {
                 <SelectItem value="DELIVERED">Entregado</SelectItem>
               </SelectContent>
             </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              onClick={handleResendEmail}
+              disabled={!order || isResending || isPending}
+            >
+              {isResending && <Spinner data-icon="inline-start" />}
+              Reenviar email con el último estado
+            </Button>
           </section>
 
           <Separator />
