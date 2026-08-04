@@ -235,10 +235,14 @@ export function OrderDetailSheet({ order, open, onClose }: Props) {
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
+                <span className="text-xs text-muted-foreground">DNI</span>
+                <span>{order?.dni ?? '—'}</span>
+              </div>
+              <div className="flex flex-col gap-0.5">
                 <span className="text-xs text-muted-foreground">Teléfono</span>
                 <span>{order?.phone}</span>
               </div>
-              <div className="col-span-2 flex flex-col gap-0.5">
+              <div className="flex flex-col gap-0.5">
                 <span className="text-xs text-muted-foreground">Email</span>
                 <span>{order?.email}</span>
               </div>
@@ -290,7 +294,11 @@ export function OrderDetailSheet({ order, open, onClose }: Props) {
                     <span>{order?.address ?? '—'}</span>
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs text-muted-foreground">Ciudad</span>
+                    <span className="text-xs text-muted-foreground">Provincia</span>
+                    <span>{order?.province ?? '—'}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs text-muted-foreground">Localidad</span>
                     <span>{order?.city ?? '—'}</span>
                   </div>
                   <div className="flex flex-col gap-0.5">

@@ -33,6 +33,7 @@ export function OrderReservationOwnerEmail({ order }: Props) {
       </Text>
       <Text style={muted}>
         {order.email} · {order.phone}
+        {order.dni ? ` · DNI ${order.dni}` : ''}
       </Text>
       {whatsappUrl && (
         <Text style={paragraph}>
@@ -42,9 +43,13 @@ export function OrderReservationOwnerEmail({ order }: Props) {
       <Text style={label}>Entrega</Text>
       <Text style={value}>{deliveryLabel}</Text>
       {order.address && <Text style={muted}>{order.address}</Text>}
-      {(order.city || order.zipCode) && (
+      {(order.province || order.city || order.zipCode) && (
         <Text style={muted}>
-          {[order.city, order.zipCode ? `CP ${order.zipCode}` : null]
+          {[
+            order.province,
+            order.city,
+            order.zipCode ? `CP ${order.zipCode}` : null,
+          ]
             .filter(Boolean)
             .join(' · ')}
         </Text>

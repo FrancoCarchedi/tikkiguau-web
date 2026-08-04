@@ -115,11 +115,13 @@ model Order {
   lastName        String
   email           String
   phone           String
+  dni             String?
   
   // Datos de envío
   deliveryMethod  DeliveryMethod
   address         String?
-  city            String?
+  city            String?        // Localidad (domicilio)
+  province        String?
   zipCode         String?
   trackingCode    String?        // Para cargar el código de Correo Argentino
   

@@ -26,9 +26,17 @@ export const createOrderSchema = z
         const digits = value.replace(/\D/g, '').length
         return digits >= 8 && digits <= 15
       }, 'Teléfono inválido'),
+    dni: z
+      .string()
+      .trim()
+      .refine((value) => {
+        const digits = value.replace(/\D/g, '')
+        return digits.length >= 7 && digits.length <= 8
+      }, 'DNI inválido (7 u 8 dígitos)'),
     deliveryMethod: z.enum(['PICKUP', 'CORREO_DOMICILIO', 'CORREO_SUCURSAL']),
     address: z.string().trim().optional(),
     city: z.string().trim().optional(),
+    province: z.string().trim().optional(),
     zipCode: z.string().trim().optional(),
     orderItems: z.array(z.record(z.string(), z.unknown())).min(1),
     totalAmount: z.number().positive(),
@@ -43,10 +51,17 @@ export const createOrderSchema = z
           path: ['address'],
         })
       }
+      if (!data.province || data.province.length < 2) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'La provincia es obligatoria',
+          path: ['province'],
+        })
+      }
       if (!data.city || data.city.length < 2) {
         ctx.addIssue({
           code: 'custom',
-          message: 'La ciudad es obligatoria',
+          message: 'La localidad es obligatoria',
           path: ['city'],
         })
       }
@@ -67,18 +82,11 @@ export const createOrderSchema = z
           path: ['address'],
         })
       }
-      if (!data.city || data.city.length < 2) {
+      if (!data.province || data.province.length < 2) {
         ctx.addIssue({
           code: 'custom',
-          message: 'La ciudad es obligatoria',
-          path: ['city'],
-        })
-      }
-      if (!data.zipCode || !/^[A-Za-z0-9\s-]{4,12}$/.test(data.zipCode)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'El código postal es obligatorio',
-          path: ['zipCode'],
+          message: 'La provincia es obligatoria',
+          path: ['province'],
         })
       }
     }

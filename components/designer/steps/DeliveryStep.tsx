@@ -79,8 +79,9 @@ export default function DeliveryStep({
     onChange({
       method,
       address: method === 'CORREO_DOMICILIO' ? data.address : undefined,
-      city: method !== 'PICKUP' ? data.city : undefined,
-      postalCode: method !== 'PICKUP' ? data.postalCode : undefined,
+      city: method === 'CORREO_DOMICILIO' ? data.city : undefined,
+      province: method !== 'PICKUP' ? data.province : undefined,
+      postalCode: method === 'CORREO_DOMICILIO' ? data.postalCode : undefined,
       branchPreference: method === 'CORREO_SUCURSAL' ? data.branchPreference : undefined,
     });
   };
@@ -148,53 +149,69 @@ export default function DeliveryStep({
       {data.method === 'CORREO_DOMICILIO' && (
         <div className="space-y-4 pt-2 border-t border-border">
           <div className="space-y-2">
+            <Label htmlFor="province">Provincia</Label>
+            <Input
+              id="province"
+              name="address-level1"
+              autoComplete="address-level1"
+              placeholder="Ej: Buenos Aires"
+              value={data.province ?? ''}
+              aria-invalid={Boolean(showError('province'))}
+              aria-describedby={showError('province') ? 'province-error' : undefined}
+              onBlur={() => markTouched('province')}
+              onChange={(event) => onChange({ ...data, province: event.target.value })}
+            />
+            <FieldError id="province-error" message={showError('province')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="city">Localidad</Label>
+            <Input
+              id="city"
+              name="address-level2"
+              autoComplete="address-level2"
+              placeholder="Ej: San Miguel"
+              value={data.city ?? ''}
+              aria-invalid={Boolean(showError('city'))}
+              aria-describedby={showError('city') ? 'city-error' : undefined}
+              onBlur={() => markTouched('city')}
+              onChange={(event) => onChange({ ...data, city: event.target.value })}
+            />
+            <FieldError id="city-error" message={showError('city')} />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="address">Dirección completa</Label>
             <Input
               id="address"
               name="street-address"
               autoComplete="street-address"
-              placeholder="Calle, número, piso/depto"
+              placeholder="Calle, altura, piso y departamento"
               value={data.address ?? ''}
               aria-invalid={Boolean(showError('address'))}
               aria-describedby={showError('address') ? 'address-error' : undefined}
               onBlur={() => markTouched('address')}
               onChange={(event) => onChange({ ...data, address: event.target.value })}
             />
+            <p className="text-xs text-muted-foreground">
+              Incluí calle, altura, y piso/departamento cuando corresponda.
+            </p>
             <FieldError id="address-error" message={showError('address')} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="city">Ciudad</Label>
-              <Input
-                id="city"
-                name="address-level2"
-                autoComplete="address-level2"
-                placeholder="Ciudad"
-                value={data.city ?? ''}
-                aria-invalid={Boolean(showError('city'))}
-                aria-describedby={showError('city') ? 'city-error' : undefined}
-                onBlur={() => markTouched('city')}
-                onChange={(event) => onChange({ ...data, city: event.target.value })}
-              />
-              <FieldError id="city-error" message={showError('city')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="postalCode">Código postal</Label>
-              <Input
-                id="postalCode"
-                name="postal-code"
-                autoComplete="postal-code"
-                placeholder="Ej: 1425"
-                value={data.postalCode ?? ''}
-                aria-invalid={Boolean(showError('postalCode'))}
-                aria-describedby={
-                  showError('postalCode') ? 'postalCode-error' : undefined
-                }
-                onBlur={() => markTouched('postalCode')}
-                onChange={(event) => onChange({ ...data, postalCode: event.target.value })}
-              />
-              <FieldError id="postalCode-error" message={showError('postalCode')} />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="postalCode">Código postal</Label>
+            <Input
+              id="postalCode"
+              name="postal-code"
+              autoComplete="postal-code"
+              placeholder="Ej: 1663"
+              value={data.postalCode ?? ''}
+              aria-invalid={Boolean(showError('postalCode'))}
+              aria-describedby={
+                showError('postalCode') ? 'postalCode-error' : undefined
+              }
+              onBlur={() => markTouched('postalCode')}
+              onChange={(event) => onChange({ ...data, postalCode: event.target.value })}
+            />
+            <FieldError id="postalCode-error" message={showError('postalCode')} />
           </div>
         </div>
       )}
@@ -202,10 +219,27 @@ export default function DeliveryStep({
       {data.method === 'CORREO_SUCURSAL' && (
         <div className="space-y-4 pt-2 border-t border-border">
           <div className="space-y-2">
-            <Label htmlFor="branchPreference">Dirección de sucursal</Label>
+            <Label htmlFor="branchProvince">Provincia</Label>
+            <Input
+              id="branchProvince"
+              name="address-level1"
+              autoComplete="address-level1"
+              placeholder="Ej: Buenos Aires"
+              value={data.province ?? ''}
+              aria-invalid={Boolean(showError('province'))}
+              aria-describedby={
+                showError('province') ? 'branchProvince-error' : undefined
+              }
+              onBlur={() => markTouched('province')}
+              onChange={(event) => onChange({ ...data, province: event.target.value })}
+            />
+            <FieldError id="branchProvince-error" message={showError('province')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="branchPreference">Dirección de la sucursal</Label>
             <Input
               id="branchPreference"
-              placeholder="Ej: Av. Santa Fe 1234, Correo Argentino"
+              placeholder="Ej: Correo Argentino San Miguel — Av. Presidente Perón 1234"
               value={data.branchPreference ?? ''}
               aria-invalid={Boolean(showError('branchPreference'))}
               aria-describedby={
@@ -216,47 +250,13 @@ export default function DeliveryStep({
                 onChange({ ...data, branchPreference: event.target.value })
               }
             />
+            <p className="text-xs text-muted-foreground">
+              Indicá el nombre de la sucursal y la calle donde está ubicada.
+            </p>
             <FieldError
               id="branchPreference-error"
               message={showError('branchPreference')}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="branchCity">Ciudad</Label>
-              <Input
-                id="branchCity"
-                name="address-level2"
-                autoComplete="address-level2"
-                placeholder="Ciudad"
-                value={data.city ?? ''}
-                aria-invalid={Boolean(showError('city'))}
-                aria-describedby={showError('city') ? 'branchCity-error' : undefined}
-                onBlur={() => markTouched('city')}
-                onChange={(event) => onChange({ ...data, city: event.target.value })}
-              />
-              <FieldError id="branchCity-error" message={showError('city')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="branchPostalCode">Código postal</Label>
-              <Input
-                id="branchPostalCode"
-                name="postal-code"
-                autoComplete="postal-code"
-                placeholder="Ej: 1425"
-                value={data.postalCode ?? ''}
-                aria-invalid={Boolean(showError('postalCode'))}
-                aria-describedby={
-                  showError('postalCode') ? 'branchPostalCode-error' : undefined
-                }
-                onBlur={() => markTouched('postalCode')}
-                onChange={(event) => onChange({ ...data, postalCode: event.target.value })}
-              />
-              <FieldError
-                id="branchPostalCode-error"
-                message={showError('postalCode')}
-              />
-            </div>
           </div>
         </div>
       )}

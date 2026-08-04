@@ -59,7 +59,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
-              Accesorios únicos para mascotas únicas.
+              Accesorios que hacen guau®
             </p>
           </div>
 

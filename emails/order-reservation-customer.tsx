@@ -34,14 +34,20 @@ export function OrderReservationCustomerEmail({ order }: Props) {
       </Text>
       {order.deliveryMethod === 'CORREO_DOMICILIO' && (
         <>
-          <Text style={label}>Dirección de envío</Text>
-          {order.address && <Text style={value}>{order.address}</Text>}
+          {order.province && (
+            <>
+              <Text style={label}>Provincia</Text>
+              <Text style={value}>{order.province}</Text>
+            </>
+          )}
           {order.city && (
             <>
-              <Text style={label}>Ciudad</Text>
+              <Text style={label}>Localidad</Text>
               <Text style={value}>{order.city}</Text>
             </>
           )}
+          <Text style={label}>Dirección de envío</Text>
+          {order.address && <Text style={value}>{order.address}</Text>}
           {order.zipCode && (
             <>
               <Text style={label}>Código postal</Text>
@@ -52,20 +58,14 @@ export function OrderReservationCustomerEmail({ order }: Props) {
       )}
       {order.deliveryMethod === 'CORREO_SUCURSAL' && (
         <>
+          {order.province && (
+            <>
+              <Text style={label}>Provincia</Text>
+              <Text style={value}>{order.province}</Text>
+            </>
+          )}
           <Text style={label}>Dirección de sucursal</Text>
           {order.address && <Text style={value}>{order.address}</Text>}
-          {order.city && (
-            <>
-              <Text style={label}>Ciudad</Text>
-              <Text style={value}>{order.city}</Text>
-            </>
-          )}
-          {order.zipCode && (
-            <>
-              <Text style={label}>Código postal</Text>
-              <Text style={value}>{order.zipCode}</Text>
-            </>
-          )}
         </>
       )}
 
