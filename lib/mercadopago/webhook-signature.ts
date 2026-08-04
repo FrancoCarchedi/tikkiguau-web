@@ -27,13 +27,13 @@ export function validateMercadoPagoWebhookSignature(input: {
   }
 
   try {
+    // No usar toleranceSeconds: el SDK compara `ts` (segundos Unix de MP)
+    // contra Date.now() (ms), lo que rechaza siempre con TimestampOutOfTolerance.
     WebhookSignatureValidator.validate({
       xSignature: input.xSignature ?? '',
       xRequestId: input.xRequestId ?? '',
       dataId: input.dataId ?? '',
       secret,
-      // Ventana anti-replay (~5 min)
-      toleranceSeconds: 300,
     })
     return { ok: true, validated: true }
   } catch (error) {
