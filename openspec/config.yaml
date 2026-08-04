@@ -85,19 +85,19 @@ context: |
 
   ## Dominio de negocio
 
-  **Modelo comercial:** reserva de pedido, no e-commerce con pasarela. Guest checkout sin registro de usuarios en el sitio web.
+  **Modelo comercial:** reserva de pedido con dos métodos de pago en la web: transferencia (precio CMS) o Mercado Pago Checkout Pro (+10% sobre productos + envío). Guest checkout sin registro. Acreditación MP vía `notification_url` + sync en `/pago/success` (panel Webhooks opcional).
 
-  **Productos y precios:** gestionados en CMS (ARS). Snapshot en cada orden (`orderItems` + `totalAmount`); no se recalculan pedidos viejos al cambiar el catálogo.
+  **Productos y precios:** gestionados en CMS (ARS). Snapshot en cada orden (`orderItems` + `totalAmount`); no se recalculan pedidos viejos al cambiar el catálogo. El recargo MP no es precio de catálogo.
 
   **Personalización:** colores de base, letras y emojis del catálogo activo. Collar y correa admiten letras y emojis. Mínimo 3 piezas; máximo 6 (collar) / 10 (correa).
 
-  **Flujo web (implementado):**
+  **Flujo web:**
   1. Cliente diseña en `/disenar` → carrito con uno o más ítems
-  2. Datos: nombre, apellido, email, teléfono (sin palabra clave de tienda)
-  3. Método de entrega: `PICKUP` | `CORREO_DOMICILIO` | `CORREO_SUCURSAL` (campos validados según método)
-  4. Orden creada con `storeId: null`, estado `PENDING`, `orderItems` JSON con diseño completo
-  5. Confirmación muestra número de orden; Melizza contacta por WhatsApp para total final (incl. envío) y datos de transferencia
-  6. Pago exclusivamente por transferencia bancaria; comprobante por WhatsApp citando número de orden
+  2. Datos: nombre, apellido, email, teléfono
+  3. Método de entrega: `PICKUP` | `CORREO_DOMICILIO` | `CORREO_SUCURSAL`
+  4. Método de pago: `TRANSFER` | `MERCADOPAGO`
+  5. Orden `storeId: null`, `PENDING`; si MP se crea preferencia Checkout Pro
+  6. Transferencia: alias/CVU + comprobante WhatsApp; MP: Wallet + auto-APPROVED al acreditar
 
   **Diferencia vs app de tiendas (referencia, fuera de alcance OpenSpec):** órdenes de tienda tienen `storeId` y keyword; las del sitio web no. La app de tiendas usa pago en efectivo en tienda física. Paridad de diseñador documentada en `docs/DOCUMENTATION.md`.
 

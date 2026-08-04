@@ -92,6 +92,19 @@ enum DeliveryMethod {
   CORREO_SUCURSAL
 }
 
+enum PaymentMethod {
+  TRANSFER
+  MERCADOPAGO
+}
+
+enum PaymentStatus {
+  NOT_REQUIRED
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
 model Order {
   id              String         @id @default(uuid())
   orderNumber     String         @unique // Ej: "TK-1001"
@@ -111,8 +124,15 @@ model Order {
   trackingCode    String?        // Para cargar el código de Correo Argentino
   
   // Costos y productos
-  totalAmount     Float          // Costo total de items + envío
+  totalAmount     Float          // Monto a cobrar (base + recargo MP si aplica)
   orderItems      Json           // El JSON estructurado del carrito
+
+  // Pago (web: transferencia o Checkout Pro; tiendas: default TRANSFER/NOT_REQUIRED)
+  paymentMethod          PaymentMethod @default(TRANSFER)
+  paymentStatus          PaymentStatus @default(NOT_REQUIRED)
+  paymentSurchargeAmount Float         @default(0)
+  mpPreferenceId         String?
+  mpPaymentId            String?
 
   // Tienda origen (solo si fue creada desde la app de tiendas)
   storeId         String?

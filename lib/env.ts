@@ -18,6 +18,16 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().min(1).optional(),
   ORDER_NOTIFY_EMAIL: z.email().optional(),
 
+  // Mercado Pago (opcionales en build; requeridos al cobrar online)
+  MP_ACCESS_TOKEN: z.string().min(1).optional(),
+  NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().min(1).optional(),
+  /** Base pública HTTPS (ngrok en test / dominio en prod) para back_urls y notification_url */
+  NEXT_PUBLIC_APP_URL: z.url().optional(),
+  MP_WEBHOOK_SECRET: z.string().min(1).optional(),
+  /** Si es "false", oculta Mercado Pago en el diseñador (también en cliente vía NEXT_PUBLIC_) */
+  MP_CHECKOUT_ENABLED: z.enum(['true', 'false']).optional(),
+  NEXT_PUBLIC_MP_CHECKOUT_ENABLED: z.enum(['true', 'false']).optional(),
+
   // Usuario administrador (solo requeridas en tiempo de ejecución del seeder)
   ADMIN_NAME: z
     .string('ADMIN_NAME es requerida')
@@ -46,3 +56,13 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data
+
+export function isMercadoPagoCheckoutEnabled(): boolean {
+  if (
+    env.MP_CHECKOUT_ENABLED === 'false' ||
+    env.NEXT_PUBLIC_MP_CHECKOUT_ENABLED === 'false'
+  ) {
+    return false
+  }
+  return Boolean(env.MP_ACCESS_TOKEN && env.NEXT_PUBLIC_MP_PUBLIC_KEY)
+}
