@@ -26,7 +26,7 @@ const DELIVERY_OPTIONS: {
     icon: Building2,
     title: "Retiro por sucursal",
     description:
-      "Retirás el paquete en la sucursal de Correo Argentino más cercana. Indicás tu ciudad y código postal al confirmar el pedido.",
+      "Retirás el paquete en la sucursal de Correo Argentino más cercana. Indicás la provincia y la dirección de la sucursal al confirmar el pedido.",
     accent: "#84A308",
     tagBg: "#84A308",
   },
@@ -51,13 +51,13 @@ const STEPS = [
     number: "2",
     title: "Confirmás la reserva",
     description:
-      "Ingresás tus datos, elegís cómo recibir el pedido y ves el total con el costo de envío incluido.",
+      "Ingresás tus datos, elegís cómo recibir el pedido y ves el total con el envío incluido.",
   },
   {
     number: "3",
-    title: "Realizás la transferencia",
+    title: "Realizás el pago",
     description:
-      "Pagás por transferencia a nuestra cuenta de Mercado Pago con los datos que te indicamos al confirmar.",
+      "Podés pagar por transferencia o con Mercado Pago.",
   },
   {
     number: "4",
@@ -89,7 +89,9 @@ export default function ShippingSection({
           <p className="text-zinc-500 max-w-xl mx-auto">
             El sitio funciona como una{" "}
             <strong className="text-zinc-700">reserva de pedido</strong>. Los costos de envío son
-            fijos y el pago se realiza por transferencia a Mercado Pago.
+            fijos y podés pagar por{" "}
+            <strong className="text-zinc-700">transferencia</strong> o con{" "}
+            <strong className="text-zinc-700">Mercado Pago</strong> online.
           </p>
         </div>
 
