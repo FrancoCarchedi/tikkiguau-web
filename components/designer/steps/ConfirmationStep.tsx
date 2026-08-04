@@ -257,6 +257,9 @@ export default function ConfirmationStep({
               {userData.lastName}
             </p>
             <p>
+              <span className="font-medium text-foreground">DNI:</span> {userData.dni}
+            </p>
+            <p>
               <span className="font-medium text-foreground">Email:</span> {userData.email}
             </p>
             <p>
@@ -286,9 +289,16 @@ export default function ConfirmationStep({
                 {deliveryData.branchPreference}
               </p>
             )}
+            {deliveryData.province && (
+              <p>
+                <span className="font-medium text-foreground">Provincia:</span>{' '}
+                {deliveryData.province}
+              </p>
+            )}
             {deliveryData.city && (
               <p>
-                <span className="font-medium text-foreground">Ciudad:</span> {deliveryData.city}
+                <span className="font-medium text-foreground">Localidad:</span>{' '}
+                {deliveryData.city}
               </p>
             )}
             {deliveryData.postalCode && (
@@ -300,7 +310,7 @@ export default function ConfirmationStep({
         </div>
       </div>
 
-      <div className="bg-card rounded-xl p-4 border border-border shadow-card space-y-3 max-w-lg mx-auto">
+      <div className="bg-card rounded-xl p-4 border border-border shadow-card space-y-3 max-w-3xl mx-auto">
         <h3 className="font-semibold text-foreground border-b border-border pb-2">
           Método de pago
         </h3>
@@ -341,7 +351,7 @@ export default function ConfirmationStep({
         </div>
       </div>
 
-      <div className="bg-card rounded-xl p-4 border border-border shadow-card space-y-2 max-w-sm mx-auto">
+      <div className="bg-card rounded-xl p-4 border border-border shadow-card space-y-2 max-w-3xl mx-auto">
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Productos</span>
           <span className="font-medium text-foreground">{formatArsPrice(productsTotal)}</span>

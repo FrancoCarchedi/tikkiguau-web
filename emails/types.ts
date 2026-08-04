@@ -14,9 +14,11 @@ export type OrderEmailPayload = {
   lastName: string
   email: string
   phone: string
+  dni: string | null
   deliveryMethod: DeliveryMethod
   address: string | null
   city: string | null
+  province: string | null
   zipCode: string | null
   totalAmount: number
   trackingCode: string | null

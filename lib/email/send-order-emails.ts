@@ -109,9 +109,11 @@ export function mapOrderToEmailPayload(order: {
   lastName: string
   email: string
   phone: string
+  dni?: string | null
   deliveryMethod: OrderEmailPayload['deliveryMethod']
   address: string | null
   city: string | null
+  province?: string | null
   zipCode: string | null
   totalAmount: number
   trackingCode: string | null
@@ -126,9 +128,11 @@ export function mapOrderToEmailPayload(order: {
     lastName: order.lastName,
     email: order.email,
     phone: order.phone,
+    dni: order.dni ?? null,
     deliveryMethod: order.deliveryMethod,
     address: order.address,
     city: order.city,
+    province: order.province ?? null,
     zipCode: order.zipCode,
     totalAmount: order.totalAmount,
     trackingCode: order.trackingCode,

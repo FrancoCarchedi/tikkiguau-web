@@ -146,6 +146,7 @@ export default function DesignerPage({
     lastName: '',
     email: '',
     phone: '',
+    dni: '',
   });
   const [deliveryData, setDeliveryData] = useState<DeliveryData>({ method: 'PICKUP' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -321,9 +322,11 @@ export default function DesignerPage({
           lastName: userData.lastName.trim(),
           email: userData.email.trim(),
           phone: userData.phone.trim(),
+          dni: userData.dni.replace(/\D/g, ''),
           deliveryMethod: deliveryData.method,
           address,
           city: deliveryData.city,
+          province: deliveryData.province,
           zipCode: deliveryData.postalCode,
           orderItems,
           totalAmount: totals.totalAmount,

@@ -37,12 +37,14 @@ export interface UserData {
   lastName: string;
   email: string;
   phone: string;
+  dni: string;
 }
 
 export interface DeliveryData {
   method: DeliveryMethod;
   address?: string;
   city?: string;
+  province?: string;
   postalCode?: string;
   branchPreference?: string;
 }

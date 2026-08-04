@@ -7,6 +7,10 @@ function countDigits(value: string): number {
   return value.replace(/\D/g, '').length
 }
 
+function normalizeDniDigits(value: string): string {
+  return value.replace(/\D/g, '')
+}
+
 export const userDataSchema = z.object({
   name: z
     .string()
@@ -38,6 +42,14 @@ export const userDataSchema = z.object({
       const digits = countDigits(value)
       return digits >= 8 && digits <= 15
     }, 'Ingresá un teléfono válido (8 a 15 dígitos)'),
+  dni: z
+    .string()
+    .trim()
+    .min(1, 'El DNI es obligatorio')
+    .refine((value) => {
+      const digits = normalizeDniDigits(value)
+      return digits.length >= 7 && digits.length <= 8
+    }, 'Ingresá un DNI válido (7 u 8 dígitos)'),
 })
 
 export type UserDataField = keyof UserData
@@ -59,7 +71,8 @@ export function getUserDataFieldErrors(
       (key === 'name' ||
         key === 'lastName' ||
         key === 'email' ||
-        key === 'phone') &&
+        key === 'phone' ||
+        key === 'dni') &&
       !errors[key]
     ) {
       errors[key] = issue.message
@@ -75,6 +88,7 @@ export const deliveryDataSchema = z
     method: z.enum(['PICKUP', 'CORREO_DOMICILIO', 'CORREO_SUCURSAL']),
     address: optionalTrimmed,
     city: optionalTrimmed,
+    province: optionalTrimmed,
     postalCode: optionalTrimmed,
     branchPreference: optionalTrimmed,
   })
@@ -83,14 +97,21 @@ export const deliveryDataSchema = z
       if (!data.address || data.address.length < 5) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Ingresá una dirección completa',
+          message: 'Ingresá calle, altura y piso/depto si corresponde',
           path: ['address'],
+        })
+      }
+      if (!data.province || data.province.length < 2) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Ingresá la provincia',
+          path: ['province'],
         })
       }
       if (!data.city || data.city.length < 2) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Ingresá la ciudad',
+          message: 'Ingresá la localidad',
           path: ['city'],
         })
       }
@@ -107,22 +128,15 @@ export const deliveryDataSchema = z
       if (!data.branchPreference || data.branchPreference.length < 5) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Ingresá la dirección de la sucursal',
+          message: 'Ingresá el nombre y la calle de la sucursal',
           path: ['branchPreference'],
         })
       }
-      if (!data.city || data.city.length < 2) {
+      if (!data.province || data.province.length < 2) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Ingresá la ciudad',
-          path: ['city'],
-        })
-      }
-      if (!data.postalCode || !/^[A-Za-z0-9\s-]{4,12}$/.test(data.postalCode)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Ingresá un código postal válido',
-          path: ['postalCode'],
+          message: 'Ingresá la provincia',
+          path: ['province'],
         })
       }
     }
@@ -147,6 +161,7 @@ export function getDeliveryDataFieldErrors(
       typeof key === 'string' &&
       (key === 'address' ||
         key === 'city' ||
+        key === 'province' ||
         key === 'postalCode' ||
         key === 'branchPreference' ||
         key === 'method') &&

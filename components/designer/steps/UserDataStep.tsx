@@ -119,6 +119,23 @@ export default function UserDataStep({
           />
           <FieldError id="phone-error" message={showError('phone')} />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="dni">DNI</Label>
+          <Input
+            id="dni"
+            name="dni"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="Ej: 30123456"
+            value={data.dni}
+            aria-invalid={Boolean(showError('dni'))}
+            aria-describedby={showError('dni') ? 'dni-error' : undefined}
+            onBlur={() => markTouched('dni')}
+            onChange={(event) => onChange({ ...data, dni: event.target.value })}
+          />
+          <FieldError id="dni-error" message={showError('dni')} />
+        </div>
       </div>
     </div>
   );
