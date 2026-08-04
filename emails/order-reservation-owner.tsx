@@ -3,6 +3,7 @@ import { EmailLayout, EmailLink } from '@/emails/components/email-layout'
 import { buildCustomerWhatsAppUrl } from '@/lib/payment-details'
 import {
   DELIVERY_LABELS,
+  PAYMENT_METHOD_LABELS,
   formatArsEmail,
   type OrderEmailPayload,
 } from '@/emails/types'
@@ -13,6 +14,7 @@ type Props = {
 
 export function OrderReservationOwnerEmail({ order }: Props) {
   const deliveryLabel = DELIVERY_LABELS[order.deliveryMethod]
+  const paymentLabel = PAYMENT_METHOD_LABELS[order.paymentMethod]
   const whatsappUrl = buildCustomerWhatsAppUrl(order.phone, {
     prefillText: `Hola ${order.firstName}, te escribo por tu reserva ${order.orderNumber} en TikkiGuau.`,
   })
@@ -45,6 +47,16 @@ export function OrderReservationOwnerEmail({ order }: Props) {
           {[order.city, order.zipCode ? `CP ${order.zipCode}` : null]
             .filter(Boolean)
             .join(' · ')}
+        </Text>
+      )}
+      <Text style={label}>Pago</Text>
+      <Text style={value}>{paymentLabel}</Text>
+      {order.paymentMethod === 'MERCADOPAGO' && (
+        <Text style={muted}>
+          Pago online pendiente de acreditación
+          {order.paymentSurchargeAmount > 0
+            ? ` · recargo ${formatArsEmail(order.paymentSurchargeAmount)}`
+            : ''}
         </Text>
       )}
       <Text style={label}>Total</Text>

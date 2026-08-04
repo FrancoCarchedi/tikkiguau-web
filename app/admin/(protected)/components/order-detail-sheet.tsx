@@ -25,6 +25,10 @@ import { OrderStatusBadge } from './order-status-badge'
 import { useUpdateOrder } from '../hooks/use-update-order'
 import { useResendOrderEmail } from '../hooks/use-resend-order-email'
 import type { Order, OrderStatus } from '../types/order'
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_LABELS,
+} from '../types/order'
 
 type Props = {
   order: Order | null
@@ -342,6 +346,55 @@ export function OrderDetailSheet({ order, open, onClose }: Props) {
               {isResending && <Spinner data-icon="inline-start" />}
               Reenviar email con el último estado
             </Button>
+          </section>
+
+          <Separator />
+
+          {/* Pago */}
+          <section className="flex flex-col gap-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Pago
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">Método</p>
+                <p className="font-medium">
+                  {order
+                    ? PAYMENT_METHOD_LABELS[order.paymentMethod] ??
+                      order.paymentMethod
+                    : '—'}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Estado de pago</p>
+                <p className="font-medium">
+                  {order
+                    ? PAYMENT_STATUS_LABELS[order.paymentStatus] ??
+                      order.paymentStatus
+                    : '—'}
+                </p>
+              </div>
+              {order && order.paymentSurchargeAmount > 0 && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Recargo MP</p>
+                  <p className="font-medium">
+                    {formatCurrency(order.paymentSurchargeAmount)}
+                  </p>
+                </div>
+              )}
+              {order?.mpPaymentId && (
+                <div className="col-span-2">
+                  <p className="text-xs text-muted-foreground">Payment ID</p>
+                  <p className="font-mono text-xs break-all">{order.mpPaymentId}</p>
+                </div>
+              )}
+              {order?.mpPreferenceId && (
+                <div className="col-span-2">
+                  <p className="text-xs text-muted-foreground">Preference ID</p>
+                  <p className="font-mono text-xs break-all">{order.mpPreferenceId}</p>
+                </div>
+              )}
+            </div>
           </section>
 
           <Separator />

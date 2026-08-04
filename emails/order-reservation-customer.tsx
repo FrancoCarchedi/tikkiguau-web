@@ -14,10 +14,15 @@ type Props = {
 
 export function OrderReservationCustomerEmail({ order }: Props) {
   const deliveryLabel = DELIVERY_LABELS[order.deliveryMethod]
+  const isMercadoPago = order.paymentMethod === 'MERCADOPAGO'
 
   return (
     <EmailLayout
-      preview={`Reserva ${order.orderNumber} confirmada — datos para transferir`}
+      preview={
+        isMercadoPago
+          ? `Reserva ${order.orderNumber} — completá el pago online`
+          : `Reserva ${order.orderNumber} confirmada — datos para transferir`
+      }
       title="¡Reserva confirmada!"
     >
       <Text style={paragraph}>
@@ -63,24 +68,49 @@ export function OrderReservationCustomerEmail({ order }: Props) {
           )}
         </>
       )}
-      <Text style={paragraph}>
-        Total a transferir: <strong>{formatArsEmail(order.totalAmount)}</strong>
-      </Text>
-      <Text style={paragraph}>
-        Realizá el pago por transferencia a nuestra cuenta de Mercado Pago. Una vez
-        acreditado, comenzamos a confeccionar tu pedido.
-      </Text>
-      <Text style={label}>Alias</Text>
-      <Text style={value}>{MERCADO_PAGO_PAYMENT.alias}</Text>
-      <Text style={label}>CVU</Text>
-      <Text style={valueMono}>{MERCADO_PAGO_PAYMENT.cvu}</Text>
-      <Text style={label}>Titular</Text>
-      <Text style={value}>{MERCADO_PAGO_PAYMENT.holder}</Text>
-      <Text style={paragraph}>
-        Cuando hagas la transferencia, enviá el comprobante por WhatsApp e indicá tu
-        número de orden <strong>{order.orderNumber}</strong>:{' '}
-        <EmailLink href={WHATSAPP_URL}>Abrir WhatsApp</EmailLink>
-      </Text>
+
+      {isMercadoPago ? (
+        <>
+          <Text style={paragraph}>
+            Total a pagar online:{' '}
+            <strong>{formatArsEmail(order.totalAmount)}</strong>
+            {order.paymentSurchargeAmount > 0 && (
+              <>
+                {' '}
+                (incluye recargo de Mercado Pago de{' '}
+                {formatArsEmail(order.paymentSurchargeAmount)})
+              </>
+            )}
+          </Text>
+          <Text style={paragraph}>
+            Completá el pago con Mercado Pago desde la web (dinero en cuenta, débito
+            o crédito). Cuando se acredite, te enviamos la confirmación de pedido
+            aprobado.
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={paragraph}>
+            Total a transferir:{' '}
+            <strong>{formatArsEmail(order.totalAmount)}</strong>
+          </Text>
+          <Text style={paragraph}>
+            Realizá el pago por transferencia a nuestra cuenta de Mercado Pago. Una
+            vez acreditado, comenzamos a confeccionar tu pedido.
+          </Text>
+          <Text style={label}>Alias</Text>
+          <Text style={value}>{MERCADO_PAGO_PAYMENT.alias}</Text>
+          <Text style={label}>CVU</Text>
+          <Text style={valueMono}>{MERCADO_PAGO_PAYMENT.cvu}</Text>
+          <Text style={label}>Titular</Text>
+          <Text style={value}>{MERCADO_PAGO_PAYMENT.holder}</Text>
+          <Text style={paragraph}>
+            Cuando hagas la transferencia, enviá el comprobante por WhatsApp e
+            indicá tu número de orden <strong>{order.orderNumber}</strong>:{' '}
+            <EmailLink href={WHATSAPP_URL}>Abrir WhatsApp</EmailLink>
+          </Text>
+        </>
+      )}
       <EmailWhatsAppConsultas />
     </EmailLayout>
   )

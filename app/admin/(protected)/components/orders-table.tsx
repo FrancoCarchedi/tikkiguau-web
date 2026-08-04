@@ -24,6 +24,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useOrders } from '../hooks/use-orders'
 import { useStores } from '../hooks/use-stores'
 import type { Order } from '../types/order'
+import { PAYMENT_METHOD_LABELS } from '../types/order'
 import { OrderStatusBadge } from './order-status-badge'
 import { OrderDetailSheet } from './order-detail-sheet'
 
@@ -207,6 +208,7 @@ export function OrdersTable() {
               <TableHead>Teléfono</TableHead>
               <TableHead>Tienda</TableHead>
               <TableHead>Entrega</TableHead>
+              <TableHead>Pago</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="whitespace-nowrap">Fecha</TableHead>
@@ -228,7 +230,7 @@ export function OrdersTable() {
               ? (
                   <TableRow>
                     <TableCell
-                      colSpan={10}
+                      colSpan={11}
                       className="py-16 text-center text-muted-foreground text-sm"
                     >
                       {hasActiveFilters ? 'No hay órdenes que coincidan con los filtros aplicados.' : 'No hay órdenes registradas aún.'}
@@ -260,6 +262,11 @@ export function OrdersTable() {
                     </TableCell>
                     <TableCell className="text-sm whitespace-nowrap">
                       {deliveryLabels[order.deliveryMethod] ?? order.deliveryMethod}
+                    </TableCell>
+                    <TableCell className="text-sm whitespace-nowrap">
+                      {PAYMENT_METHOD_LABELS[order.paymentMethod] ??
+                        order.paymentMethod ??
+                        'Transferencia'}
                     </TableCell>
                     <TableCell className="font-medium whitespace-nowrap">
                       {formatCurrency(order.totalAmount)}

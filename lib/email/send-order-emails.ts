@@ -116,6 +116,9 @@ export function mapOrderToEmailPayload(order: {
   totalAmount: number
   trackingCode: string | null
   status: OrderStatus
+  paymentMethod?: OrderEmailPayload['paymentMethod'] | null
+  paymentStatus?: OrderEmailPayload['paymentStatus'] | null
+  paymentSurchargeAmount?: number | null
 }): OrderEmailPayload {
   return {
     orderNumber: order.orderNumber,
@@ -130,5 +133,8 @@ export function mapOrderToEmailPayload(order: {
     totalAmount: order.totalAmount,
     trackingCode: order.trackingCode,
     status: order.status,
+    paymentMethod: order.paymentMethod ?? 'TRANSFER',
+    paymentStatus: order.paymentStatus ?? 'NOT_REQUIRED',
+    paymentSurchargeAmount: order.paymentSurchargeAmount ?? 0,
   }
 }

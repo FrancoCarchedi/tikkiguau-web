@@ -27,6 +27,7 @@ import {
   buildOrderItems,
   calculateProductsTotal,
 } from '@/lib/orders/build-order-items';
+import { calculateOrderTotals } from '@/lib/orders/payment-pricing';
 import {
   validateDeliveryData,
   validateUserData,
@@ -48,6 +49,7 @@ import {
   MAX_LEASH_ELEMENTS,
   MIN_LEASH_ELEMENTS,
 } from '@/types/collar';
+import type { DesignerPaymentMethod } from '@/components/designer/steps/ConfirmationStep';
 
 type StepKey =
   | 'product'
@@ -120,7 +122,15 @@ function createInitialLeash(defaultColor: string): LeashDesign {
   };
 }
 
-export default function DesignerPage() {
+type DesignerPageProps = {
+  mercadoPagoEnabled?: boolean;
+  mpPublicKey?: string | null;
+};
+
+export default function DesignerPage({
+  mercadoPagoEnabled = false,
+  mpPublicKey = null,
+}: DesignerPageProps) {
   const catalog = useRequiredCatalog();
   const defaultColor = getDefaultBaseColor(catalog);
 
@@ -141,6 +151,13 @@ export default function DesignerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] =
+    useState<DesignerPaymentMethod>('TRANSFER');
+  const [paidTotalAmount, setPaidTotalAmount] = useState<number | null>(null);
+  const [paidSurchargeAmount, setPaidSurchargeAmount] = useState<number | null>(
+    null
+  );
   const [collarSelectedId, setCollarSelectedId] = useState<string | null>(null);
   const [leashSelectedId, setLeashSelectedId] = useState<string | null>(null);
   const [forceFormErrors, setForceFormErrors] = useState(false);
@@ -282,7 +299,11 @@ export default function DesignerPage() {
     try {
       const productsTotal = calculateProductsTotal(catalog, allItems);
       const shippingAmount = getShippingAmount(catalog, deliveryData.method);
-      const totalAmount = productsTotal + shippingAmount;
+      const totals = calculateOrderTotals({
+        productsAmount: productsTotal,
+        shippingAmount,
+        paymentMethod,
+      });
       const orderItems = buildOrderItems(catalog, allItems);
 
       const address =
@@ -305,7 +326,8 @@ export default function DesignerPage() {
           city: deliveryData.city,
           zipCode: deliveryData.postalCode,
           orderItems,
-          totalAmount,
+          totalAmount: totals.totalAmount,
+          paymentMethod,
         }),
       });
 
@@ -314,10 +336,24 @@ export default function DesignerPage() {
         throw new Error(error.message ?? 'Error al crear la orden');
       }
 
-      const order = (await response.json()) as { orderNumber: string };
+      const order = (await response.json()) as {
+        orderNumber: string;
+        preferenceId?: string | null;
+        totalAmount?: number;
+        paymentSurchargeAmount?: number;
+      };
       setOrderNumber(order.orderNumber);
+      setPreferenceId(order.preferenceId ?? null);
+      setPaidTotalAmount(order.totalAmount ?? totals.totalAmount);
+      setPaidSurchargeAmount(
+        order.paymentSurchargeAmount ?? totals.paymentSurchargeAmount
+      );
       setIsSubmitted(true);
-      toast.success('¡Reserva confirmada!');
+      toast.success(
+        paymentMethod === 'MERCADOPAGO'
+          ? '¡Reserva creada! Completá el pago'
+          : '¡Reserva confirmada!'
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'No se pudo confirmar la reserva. Intentá de nuevo.'
@@ -502,7 +538,14 @@ export default function DesignerPage() {
               items={allItems}
               userData={userData}
               deliveryData={deliveryData}
+              paymentMethod={paymentMethod}
+              onPaymentMethodChange={setPaymentMethod}
+              mercadoPagoEnabled={mercadoPagoEnabled}
+              mpPublicKey={mpPublicKey}
+              preferenceId={preferenceId}
               orderNumber={orderNumber}
+              paidTotalAmount={paidTotalAmount}
+              paidSurchargeAmount={paidSurchargeAmount}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
               isSubmitted={isSubmitted}

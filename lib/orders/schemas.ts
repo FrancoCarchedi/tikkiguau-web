@@ -32,6 +32,7 @@ export const createOrderSchema = z
     zipCode: z.string().trim().optional(),
     orderItems: z.array(z.record(z.string(), z.unknown())).min(1),
     totalAmount: z.number().positive(),
+    paymentMethod: z.enum(['TRANSFER', 'MERCADOPAGO']).default('TRANSFER'),
   })
   .superRefine((data, ctx) => {
     if (data.deliveryMethod === 'CORREO_DOMICILIO') {
