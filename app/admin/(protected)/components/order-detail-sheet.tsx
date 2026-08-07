@@ -53,6 +53,7 @@ type ProductPart = {
   size: string
   colorValue: string
   colorName: string
+  neckLengthCm?: number
   elements: OrderItemElement[]
 }
 
@@ -102,6 +103,11 @@ function ProductPartCard({ label, part }: { label: string; part: ProductPart }) 
         />
         <span className="text-muted-foreground text-xs">{part.colorName}</span>
       </div>
+      {part.neckLengthCm != null && (
+        <p className="text-xs text-muted-foreground">
+          Longitud de cuello aproximada: <span className="font-medium text-foreground">{part.neckLengthCm} cm</span>
+        </p>
+      )}
       {part.elements.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {part.elements.map((el, i) => (

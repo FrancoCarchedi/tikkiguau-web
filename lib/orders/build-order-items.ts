@@ -18,6 +18,8 @@ export interface PersistedProductPart {
   size: string
   colorValue: string
   colorName: string
+  /** Solo collar: longitud aproximada del cuello en cm, si el cliente la indicó. */
+  neckLengthCm?: number
   elements: PersistedOrderItemElement[]
 }
 
@@ -46,6 +48,10 @@ function transformPart(
     size: sizes.find((entry) => entry.value === sizeValue)?.label ?? `Talla ${sizeValue}`,
     colorValue,
     colorName: getBaseColorName(catalog, colorValue),
+    ...(isCollar &&
+    typeof (design as CollarDesign).neckLengthCm === 'number'
+      ? { neckLengthCm: (design as CollarDesign).neckLengthCm }
+      : {}),
     elements: design.elements.map((element) => ({
       type: element.type,
       value: element.value,

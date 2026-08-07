@@ -221,6 +221,9 @@ export default function ConfirmationStep({
                     <div>
                       <h3 className="text-xs font-semibold text-muted-foreground mb-1">
                         Collar · {getSizeLabel(item.collarDesign.collarSize, COLLAR_SIZES)}
+                        {item.collarDesign.neckLengthCm != null
+                          ? ` · cuello ~${item.collarDesign.neckLengthCm} cm`
+                          : ''}
                       </h3>
                       <CollarPreview
                         collarColor={item.collarDesign.collarColor}
