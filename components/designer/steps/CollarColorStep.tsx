@@ -2,20 +2,34 @@
 
 import { Check } from 'lucide-react';
 import { useRequiredCatalog } from '@/components/catalog/catalog-provider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { COLLAR_SIZES, type CollarSize } from '@/types/collar';
 
 interface CollarColorStepProps {
   selectedColor: string;
   selectedSize: CollarSize;
+  neckLengthCm?: number;
   onSelectColor: (color: string) => void;
   onSelectSize: (size: CollarSize) => void;
+  onNeckLengthChange: (neckLengthCm: number | undefined) => void;
+}
+
+function parseNeckLengthInput(raw: string): number | undefined {
+  const trimmed = raw.trim();
+  if (trimmed === '') return undefined;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value) || value <= 0) return undefined;
+  return Math.round(value * 10) / 10;
 }
 
 export default function CollarColorStep({
   selectedColor,
   selectedSize,
+  neckLengthCm,
   onSelectColor,
   onSelectSize,
+  onNeckLengthChange,
 }: CollarColorStepProps) {
   const catalog = useRequiredCatalog();
 
@@ -80,6 +94,37 @@ export default function CollarColorStep({
             </p>
           </button>
         ))}
+      </div>
+
+      <div className="space-y-2 max-w-lg mx-auto">
+        <Label htmlFor="neckLengthCm">
+          Longitud aproximada del cuello{' '}
+          <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <div className="relative">
+          <Input
+            id="neckLengthCm"
+            type="number"
+            inputMode="decimal"
+            min={1}
+            max={100}
+            step={0.5}
+            placeholder="Ej: 32"
+            value={neckLengthCm ?? ''}
+            onChange={(event) =>
+              onNeckLengthChange(parseNeckLengthInput(event.target.value))
+            }
+            className="pr-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            cm
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Nos ayuda a ajustar mejor el largo del collar según el talle y las letras o
+          emojis que elijas. Podés medirlo con una cinta alrededor del cuello, sin
+          apretar.
+        </p>
       </div>
     </div>
   );

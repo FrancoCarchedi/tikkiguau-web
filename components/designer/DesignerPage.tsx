@@ -406,6 +406,7 @@ export default function DesignerPage({
               <CollarColorStep
                 selectedColor={design.collarColor}
                 selectedSize={design.collarSize}
+                neckLengthCm={design.neckLengthCm}
                 onSelectColor={(color) =>
                   setDesign((prev) => ({ ...prev, collarColor: color }))
                 }
@@ -423,6 +424,9 @@ export default function DesignerPage({
                     }));
                   }
                 }}
+                onNeckLengthChange={(neckLengthCm) =>
+                  setDesign((prev) => ({ ...prev, neckLengthCm }))
+                }
               />
               <div className="max-w-lg mx-auto">
                 <CollarPreview collarColor={design.collarColor} elements={[]} />

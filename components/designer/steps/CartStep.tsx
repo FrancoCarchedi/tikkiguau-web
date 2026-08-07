@@ -58,8 +58,11 @@ export default function CartStep({ items, onAddAnother }: CartStepProps) {
                   item.collarDesign && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">
-                        Collar · {getSizeLabel(item.collarDesign.collarSize, COLLAR_SIZES)} ·{' '}
-                        {item.collarDesign.elements.length} piezas
+                        Collar · {getSizeLabel(item.collarDesign.collarSize, COLLAR_SIZES)}
+                        {item.collarDesign.neckLengthCm != null
+                          ? ` · cuello ~${item.collarDesign.neckLengthCm} cm`
+                          : ''}{' '}
+                        · {item.collarDesign.elements.length} piezas
                       </p>
                       <CollarPreview
                         collarColor={item.collarDesign.collarColor}

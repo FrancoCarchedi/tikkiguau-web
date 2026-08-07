@@ -27,6 +27,8 @@ export interface LeashDesign {
 export interface CollarDesign {
   collarColor: string;
   collarSize: CollarSize;
+  /** Longitud aproximada del cuello en cm (opcional, ayuda a Melizza al armar el collar). */
+  neckLengthCm?: number;
   elements: CollarElement[];
 }
 
