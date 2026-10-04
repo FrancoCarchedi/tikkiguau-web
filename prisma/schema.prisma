@@ -263,3 +263,46 @@ model ShippingPrice {
 
   @@map("shipping_prices")
 }
+// -------------------------------------------------------------
+// VENTA MAYORISTA (CMS) - independiente del retail
+// -------------------------------------------------------------
+
+enum WholesaleCategory {
+  LETTER
+  EMOJI
+  COLLAR
+  LEASH
+}
+
+enum WholesaleSize {
+  SIZE_1
+  SIZE_2
+}
+
+model WholesalePriceRule {
+  id               String            @id @default(cuid())
+  category         WholesaleCategory
+  size             WholesaleSize
+  unitPriceArs     Int
+  minUnitsPerColor Int               @default(25)
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([category, size])
+  @@map("wholesale_price_rules")
+}
+
+/// Fila única (id = "default") con los parámetros globales del canal mayorista.
+model WholesaleSettings {
+  id                    String   @id @default("default")
+  isEnabled             Boolean  @default(true)
+  requireMinTotalUnits  Boolean  @default(true)
+  minTotalUnits         Int      @default(250)
+  requireMinTotalAmount Boolean  @default(false)
+  minTotalAmountArs     Int      @default(200000)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("wholesale_settings")
+}
