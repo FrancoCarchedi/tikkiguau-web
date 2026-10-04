@@ -15,7 +15,11 @@ const NAV_LINKS = [
   { label: "Preguntas frecuentes", sectionId: "faq" },
 ] as const;
 
-export default function Navbar() {
+interface NavbarProps {
+  showWholesaleLink?: boolean;
+}
+
+export default function Navbar({ showWholesaleLink = false }: NavbarProps) {
   const [open, setOpen] = useState(false);
 
   const handleNavClick = (sectionId: string) => {
@@ -51,6 +55,14 @@ export default function Navbar() {
                 {link.label}
               </button>
             ))}
+            {showWholesaleLink && (
+              <Link
+                href="/mayorista"
+                className="text-sm font-medium text-zinc-500 hover:text-[#C70F11] transition-colors"
+              >
+                Mayoristas
+              </Link>
+            )}
           </nav>
 
           {/* Desktop CTA */}
@@ -91,6 +103,15 @@ export default function Navbar() {
               {link.label}
             </button>
           ))}
+          {showWholesaleLink && (
+            <Link
+              href="/mayorista"
+              className="text-sm font-medium text-zinc-600 hover:text-[#C70F11] transition-colors py-1 text-left"
+              onClick={() => setOpen(false)}
+            >
+              Mayoristas
+            </Link>
+          )}
           <Link
             href="/disenar"
             className={cn(

@@ -3,6 +3,7 @@ import { auth } from '../lib/auth'
 import { prisma } from '../lib/prisma'
 import { env } from '../lib/env'
 import { seedCatalog } from './seed-catalog'
+import { seedWholesale } from './seed-wholesale'
 
 const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = env
 
@@ -42,6 +43,7 @@ async function main() {
   }
 
   await seedCatalog(prisma)
+  await seedWholesale(prisma)
 }
 
 main()

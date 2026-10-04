@@ -10,6 +10,7 @@ import TestimonialsSection from "@/components/web/TestimonialsSection";
 import FAQSection from "@/components/web/FAQSection";
 import Footer from "@/components/web/Footer";
 import { CatalogProvider } from "@/components/catalog/catalog-provider";
+import { isWholesaleEnabled } from '@/lib/wholesale/wholesale-queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,11 +23,11 @@ async function loadCatalog() {
 }
 
 export default async function Home() {
-  const catalog = await loadCatalog()
+  const [catalog, showWholesaleLink] = await Promise.all([loadCatalog(), isWholesaleEnabled()])
 
   return (
     <CatalogProvider catalog={catalog}>
-      <Navbar />
+      <Navbar showWholesaleLink={showWholesaleLink} />
       <main>
         <Hero />
         <ProductsSection productPrices={catalog.productPrices} />
@@ -36,7 +37,7 @@ export default async function Home() {
         <TestimonialsSection />
         <FAQSection />
       </main>
-      <Footer />
+      <Footer showWholesaleLink={showWholesaleLink} />
     </CatalogProvider>
   );
 }

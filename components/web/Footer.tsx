@@ -41,7 +41,11 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export default function Footer() {
+interface FooterProps {
+  showWholesaleLink?: boolean;
+}
+
+export default function Footer({ showWholesaleLink = false }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -79,6 +83,13 @@ export default function Footer() {
                   </button>
                 </li>
               ))}
+              {showWholesaleLink && (
+                <li>
+                  <Link href="/mayorista" className="text-sm hover:text-white transition-colors">
+                    Venta mayorista
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 

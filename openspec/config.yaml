@@ -24,6 +24,7 @@ context: |
   - Validación Zod de contacto y entrega (cliente + `POST /api/orders`); guest checkout sin `storeId`
   - Confirmación con número de orden (`TK-XXXX`), datos Mercado Pago en UI y CTA WhatsApp (consultas/comprobante)
   - Emails transaccionales (Resend + React Email): reserva cliente+Melizza; APPROVED/REJECTED/DELIVERED con allowlist; reenvío manual en CMS
+  - Venta mayorista (`/mayorista`, `/admin/mayorista`): pedido por WhatsApp sin pasarela ni registro en BD; reglas y requisitos configurables en CMS (tablas aisladas `wholesale_price_rules` y `wholesale_settings`); lógica pura con tests Vitest en `lib/wholesale/` (`npm run test`)
   - Specs OpenSpec activas bajo `openspec/specs/`; changes archivados en `openspec/changes/archive/`
 
   **Pendiente / follow-ups menores (no bloquean el lanzamiento del diseñador):**
@@ -141,7 +142,8 @@ context: |
 
   Sitio público, diseñador, SEO, catálogo dinámico CMS y emails transaccionales están cerrados
   (ver archives en `openspec/changes/archive/`).
-  La próxima feature se define en un change OpenSpec nuevo; no hay change activo pendiente.
+  Change activo: `wholesale-orders` (implementado en desarrollo; pendiente de aplicar en producción y archivar).
+Antes del go-live: confirmar con Melizza los precios provisionales de collares y correas desde `/admin/mayorista`.
 
 rules:
   proposal:

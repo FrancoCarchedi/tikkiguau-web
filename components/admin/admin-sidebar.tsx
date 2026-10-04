@@ -2,7 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LogOutIcon, PackageIcon, StoreIcon, PawPrintIcon, PaletteIcon } from 'lucide-react'
+import {
+  LogOutIcon,
+  PackageIcon,
+  StoreIcon,
+  PawPrintIcon,
+  PaletteIcon,
+  WarehouseIcon,
+} from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +46,10 @@ const catalogItems = [
   { title: 'Letras', href: '/admin/catalogo/letras' },
   { title: 'Emojis', href: '/admin/catalogo/emojis' },
   { title: 'Precios', href: '/admin/catalogo/precios' },
+]
+
+const wholesaleItems = [
+  { title: 'Reglas y precios', href: '/admin/mayorista', icon: WarehouseIcon },
 ]
 
 export function AdminSidebar({ user }: { user: User }) {
@@ -108,6 +119,25 @@ export function AdminSidebar({ user }: { user: User }) {
                     isActive={pathname === item.href}
                   >
                     <PaletteIcon />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Mayorista</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {wholesaleItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    render={<Link href={item.href} />}
+                    isActive={pathname === item.href}
+                  >
+                    <item.icon />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
