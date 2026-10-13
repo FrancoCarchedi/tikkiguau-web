@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import {
   CATEGORY_LABELS,
   NOTES_MAX_LENGTH,
+  PHONE_MAX_LENGTH,
   PLAIN_ITEM_KEY,
   REFERENCE_MAX_LENGTH,
   SIZE_SHORT_LABELS,
@@ -49,10 +50,13 @@ interface OrderSummaryProps {
   lines: WholesaleOrderLine[];
   resolveItemLabel: (category: WholesaleCategory, itemKey: string) => string;
   reference: string;
+  phone: string;
   notes: string;
   referenceError: string | null;
+  phoneError: string | null;
   resolveColorName: (category: WholesaleCategory, colorHex: string) => string;
   onChangeReference: (reference: string) => void;
+  onChangePhone: (phone: string) => void;
   onChangeNotes: (notes: string) => void;
   onRemoveGroup: (
     category: WholesaleCategory,
@@ -109,10 +113,13 @@ export default function OrderSummary({
   lines,
   resolveItemLabel,
   reference,
+  phone,
   notes,
   referenceError,
+  phoneError,
   resolveColorName,
   onChangeReference,
+  onChangePhone,
   onChangeNotes,
   onRemoveGroup,
   onClearOrder,
@@ -272,6 +279,36 @@ export default function OrderSummary({
           />
           {referenceError && reference.length > 0 && (
             <p className="text-xs text-[#C70F11]">{referenceError}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="wholesale-phone"
+            className="text-[11px] font-bold uppercase tracking-widest text-zinc-500"
+          >
+            Teléfono de contacto
+          </label>
+          <Input
+            id="wholesale-phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={phone}
+            maxLength={PHONE_MAX_LENGTH}
+            placeholder="Ej: 11 2345 6789"
+            aria-invalid={!!phoneError && phone.length > 0}
+            aria-describedby="wholesale-phone-help"
+            onChange={(event) => onChangePhone(event.target.value)}
+          />
+          {phoneError && phone.length > 0 ? (
+            <p id="wholesale-phone-help" className="text-xs text-[#C70F11]">
+              {phoneError}
+            </p>
+          ) : (
+            <p id="wholesale-phone-help" className="text-xs text-zinc-500">
+              Con código de área, sin 0 ni 15. Te contactamos por WhatsApp a este número.
+            </p>
           )}
         </div>
 

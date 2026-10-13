@@ -17,6 +17,8 @@ import { formatWholesaleArs } from './format'
 import { buildGroupKey } from './order-calculator'
 
 export interface WholesaleMessageInput {
+  /** Número asignado al guardar el pedido (ej. `WH-1001`). */
+  orderNumber: string
   reference: string
   notes: string
   /** Líneas ya ordenadas con `sortWholesaleLines`. */
@@ -73,8 +75,12 @@ function buildItemsDetail(
   return items.length > 0 ? ` → ${items.join(', ')}` : ''
 }
 
-function buildHeader(reference: string): string[] {
-  return ['*Pedido mayorista TikkiGuau*', `Referencia: ${sanitizeReference(reference)}`]
+function buildHeader(orderNumber: string, reference: string): string[] {
+  return [
+    '*Pedido mayorista TikkiGuau*',
+    `Pedido: ${orderNumber}`,
+    `Referencia: ${sanitizeReference(reference)}`,
+  ]
 }
 
 function buildTotalLine(evaluation: WholesaleOrderEvaluation): string {
@@ -83,7 +89,7 @@ function buildTotalLine(evaluation: WholesaleOrderEvaluation): string {
 
 export function buildWholesaleWhatsAppMessage(input: WholesaleMessageInput): string {
   const { evaluation, lines, resolveColorName, resolveItemLabel } = input
-  const output: string[] = buildHeader(input.reference)
+  const output: string[] = buildHeader(input.orderNumber, input.reference)
 
   let currentSectionKey = ''
   for (const group of evaluation.groups) {
@@ -114,7 +120,7 @@ export function buildWholesaleWhatsAppMessage(input: WholesaleMessageInput): str
 
 export function buildWholesaleWhatsAppSummaryMessage(input: WholesaleMessageInput): string {
   return [
-    ...buildHeader(input.reference),
+    ...buildHeader(input.orderNumber, input.reference),
     buildTotalLine(input.evaluation),
     '',
     'El detalle completo del pedido te lo pego a continuación.',

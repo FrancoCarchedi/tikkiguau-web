@@ -17,7 +17,8 @@ Equivalencia de tallas: Talla 2 = M = "Mediana"; Talla 1 = XS = "Pequeña" (ver 
 
 **Non-Goals:**
 
-- Persistencia de pedidos, pasarela de pago, emails, cuentas de cliente, descuentos por volumen, envío (ver `proposal.md`).
+- Pasarela de pago, emails, cuentas de cliente, descuentos por volumen, envío (ver `proposal.md`).
+- Reutilizar la tabla `Order` o mezclar pedidos mayoristas con las órdenes minoristas.
 - Colores/letras/emojis exclusivos del canal mayorista.
 - Modificar `tikkiguau-tiendas`.
 
@@ -178,7 +179,8 @@ Requiere test runner: ver tarea 3.x (Vitest, solo para `lib/wholesale/`).
 
 - Persistencia en `localStorage` bajo la clave versionada `tikkiguau.wholesale.draft.v1`, con parseo defensivo (zod) y descarte de líneas inválidas o ya no disponibles en el catálogo/config. Si el storage falla (modo privado), el armador funciona sin persistir.
 - La hidratación ocurre en `useEffect` para evitar mismatches de SSR.
-- Sin borrado automático tras el envío: WhatsApp no confirma el envío; el usuario decide "Empezar un pedido nuevo".
+- El borrador incluye también el **teléfono** (`phone`, opcional al parsear para compatibilidad con borradores `v1` ya guardados).
+- **Revisión:** el borrador se **elimina al registrarse el pedido** (el pedido ya está guardado en el servidor y reintentar WhatsApp reutiliza ese registro). Antes de la revisión se conservaba hasta "Empezar un pedido nuevo" porque WhatsApp no confirmaba el envío.
 
 ### 7. Estructura de UI pública
 
@@ -233,14 +235,13 @@ Notas: Lo necesito para el 20/06.
 - Formato compacto `ÍTEM×cantidad` para minimizar el largo.
 - Texto de usuario (referencia/notas) se limpia de saltos de línea excesivos y se recorta a los máximos definidos.
 - **Límite de longitud:** `WHATSAPP_MAX_URL_LENGTH` (valor inicial 6000 caracteres codificados, a validar en pruebas manuales).
-- **Botón "Copiar texto" (siempre visible, mismas condiciones de validez que el envío):** copia el mensaje completo con `navigator.clipboard.writeText` y confirma con `sonner`. Si el portapapeles falla o no está disponible, se muestra un `Textarea` de solo lectura con el mensaje para copiar a mano.
-- **Ayuda al cliente:** bajo los botones se muestra un texto fijo: *"Si WhatsApp no trae tu pedido completo, tocá «Copiar texto» y pegalo en el chat."*
-- **Pedido extenso (`isSummaryOnly`):** al pulsar "Enviar pedido por WhatsApp", un diálogo informa que el detalle es muy largo para el enlace, copia automáticamente el mensaje completo al portapapeles (si el navegador lo permite) y, al confirmar, abre WhatsApp con el resumen breve. El diálogo repite la instrucción de pegar el texto en el chat y ofrece "Copiar texto" por si la copia automática falló. Se descartó truncar el detalle en silencio porque perdería información del pedido.
-- Nota técnica: la copia automática debe ejecutarse dentro del gesto del usuario (el clic), antes de `window.open`, para que los navegadores móviles no la bloqueen.
+- **Revisión:** el mensaje incluye el **número de pedido** (`Pedido: WH-1001`) justo debajo del título, para que Melizza cruce el chat con el registro del CMS. No incluye el teléfono (WhatsApp ya muestra el número del remitente y está guardado en el CMS). `WholesaleMessageInput` recibe `orderNumber` (obligatorio al construir el mensaje definitivo).
+- **Botón "Copiar texto" (solo pedido extenso):** copia el mensaje completo con `navigator.clipboard.writeText` y confirma con `sonner`. Si el portapapeles falla o no está disponible, se muestra un `Textarea` de solo lectura con el mensaje para copiar a mano.
+- **Pedido extenso (`isSummaryOnly`):** tras guardar el pedido, la pantalla de pedido registrado muestra instrucciones numeradas (1. copiá el pedido completo, 2. abrí WhatsApp y enviá el resumen, 3. pegá el pedido completo y enviá) con "Copiar texto" y "Abrir WhatsApp". No se abre WhatsApp automáticamente en este caso, para que el cliente pueda copiar primero (el número de pedido solo se conoce tras guardar, por lo que el texto completo no puede copiarse dentro del gesto del clic de confirmación). Se descartó truncar el detalle en silencio porque perdería información del pedido (y el detalle completo siempre queda en la base de datos).
 
 ### 9. Administración en el CMS
 
-- Sidebar (`components/admin/admin-sidebar.tsx`): nuevo grupo **Mayorista** con un único enlace `/admin/mayorista` (ícono distinto al de Catálogo).
+- Sidebar (`components/admin/admin-sidebar.tsx`): nuevo grupo **Mayorista** con los enlaces `/admin/mayorista/pedidos` ("Pedidos", revisión) y `/admin/mayorista` ("Reglas y precios"), con íconos distintos a los de Catálogo. Para que "Reglas y precios" no quede activo en `/admin/mayorista/pedidos`, la comparación de ruta activa es exacta (`pathname === href`).
 - Página `app/admin/(protected)/mayorista/page.tsx` con header estándar y `WholesaleSettingsPanel` (componente en `app/admin/(protected)/components/`):
   1. **Estado general:** switch `isEnabled`.
   2. **Requisitos del pedido:** dos filas con switch + input numérico (unidades totales, monto mínimo ARS), advertencia si ambos están apagados.
@@ -261,8 +262,74 @@ Son **placeholders editables**: Melizza todavía no definió estos precios y los
 
 ### 11. Navegación y SEO
 
-- `Navbar` y `Footer` (Client Components): enlace “Mayoristas” → `/mayorista`, visible solo si la sección está habilitada. `app/page.tsx` ya es un Server Component `force-dynamic`, así que lee `isEnabled` con un helper liviano (`isWholesaleEnabled()`, tolerante a errores: ante fallo, oculta el enlace) y lo pasa por props `showWholesaleLink`. No se agrega fetch client-side.
-- `app/sitemap.ts` agrega `/mayorista`. `metadata` propia en la página. `robots.ts` sin cambios.
+- **Revisión:** `Navbar` y `Footer` **no enlazan** a `/mayorista` (pedido de Melizza). Se eliminan las props `showWholesaleLink`, la lectura de `isWholesaleEnabled()` en `app/page.tsx` y el helper `isWholesaleEnabled()` (código muerto). La sección se comparte por URL directa.
+- `app/sitemap.ts` mantiene `/mayorista` (decisión confirmada: sigue indexable). `metadata` propia en la página. `robots.ts` sin cambios.
+
+### 12. Pedidos mayoristas persistidos (revisión)
+
+**Decisión:** tabla nueva `wholesale_orders` aislada (sin FK), independiente de `orders`. Se descartó reutilizar `Order`: tiene campos retail obligatorios (DNI, email, entrega, pago) y mezclaría ambos canales en `/admin` y en `tikkiguau-tiendas`.
+
+```prisma
+enum WholesaleOrderStatus {
+  NEW
+  CONTACTED
+  CLOSED
+  CANCELLED
+}
+
+model WholesaleOrder {
+  id             String               @id @default(cuid())
+  orderNumber    String               @unique
+  reference      String
+  phone          String
+  notes          String?
+  status         WholesaleOrderStatus @default(NEW)
+  totalUnits     Int
+  totalAmountArs Int
+  items          Json
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([status, createdAt])
+  @@map("wholesale_orders")
+}
+```
+
+- `items` es un **snapshot** (igual criterio que `Order.orderItems`): arreglo de grupos `{ category, size, colorHex, colorName, unitPriceArs, units, subtotalArs, items: [{ itemKey, label, quantity }] }`. Es un JSON no editable (histórico), no un dato editable del CMS, por lo que no contradice la regla de evitar JSON para datos configurables. Un tipo `WholesaleOrderItemsSnapshot` y un parser zod lo validan al leerlo.
+- **Número de pedido:** `WH-<n>` correlativo desde 1001, calculado leyendo el último y reintentando ante violación de unicidad (`P2002`, hasta 5 intentos) para soportar solicitudes simultáneas.
+- **Migración:** segunda migración aditiva `add_wholesale_orders` (solo `CREATE TYPE`/`CREATE TABLE`/`CREATE INDEX`).
+
+### 13. Creación del pedido (servidor)
+
+`POST /api/wholesale/orders` (público, sin sesión):
+
+1. Parseo con zod (`lib/wholesale/order-schemas.ts`): `reference` (sanitizada, 3–80), `phone` (misma regla que el minorista: caracteres telefónicos y 8–15 dígitos), `notes` (≤500), `lines` (1–2000 ítems, cantidades 1–9999, sin duplicados por `isSameLine`).
+2. Servicio `createWholesaleOrder` (`lib/wholesale/create-wholesale-order.ts`): carga en paralelo `getPublicCatalog()` y `getPublicWholesaleConfig()`; rechaza si `!settings.isEnabled`; valida cada línea con `isLineAvailable`; **recalcula** con `evaluateWholesaleOrder` (la misma función pura del cliente) y rechaza si `!evaluation.isValid`; arma el snapshot con nombres de color y etiquetas de ítem del catálogo vigente; guarda.
+3. Respuesta 201 `{ id, orderNumber }`. Errores de validación → 400 con mensaje en español; errores de BD → 500 con mensaje genérico (nunca el error crudo).
+- El cliente nunca envía precios ni totales; el servidor ignora cualquier valor extra (`strict`/strip).
+- Sin protección anti-spam adicional en esta versión (mismo criterio que `POST /api/orders` minorista); queda como riesgo documentado.
+
+### 14. Flujo de envío en el cliente
+
+```
+[Enviar pedido] → ConfirmOrderDialog (resumen + Seguir editando / Confirmar y enviar)
+   └─ Confirmar → POST /api/wholesale/orders
+        ├─ error  → mensaje en el diálogo, WhatsApp NO se abre, reintento posible
+        └─ éxito  → se limpia el borrador → pantalla "Pedido registrado" (OrderSubmittedView)
+                    ├─ mensaje corto: abre WhatsApp automáticamente + botón "Abrir WhatsApp"
+                    └─ mensaje largo (isSummaryOnly): instrucciones + "Copiar texto" + "Abrir WhatsApp" (sin apertura automática)
+```
+
+- **Popup blockers:** la apertura automática ocurre tras un `await`, fuera del gesto del clic. Para no ser bloqueada, al hacer clic en "Confirmar y enviar" (si el mensaje no es extenso) se abre una pestaña en blanco (`window.open('', '_blank')`) y, al guardar, se redirige a la URL de WhatsApp (`opener = null` antes de navegar); si falla el guardado se cierra. Si el navegador bloquea la pestaña, la pantalla de pedido registrado muestra "Abrir WhatsApp" (clic directo), por lo que el flujo nunca se pierde.
+- **Sin duplicados:** el botón se deshabilita mientras se guarda y, tras el éxito, el borrador se vacía; "Abrir WhatsApp" reutiliza el pedido ya guardado (estado en memoria `SubmittedWholesaleOrder`).
+- Componentes nuevos/cambiados: `SendOrderButton` ("Enviar pedido"), `ConfirmOrderDialog` (reemplaza `LargeOrderDialog`), `OrderSubmittedView`, `CopyOrderTextButton` (reutilizado solo en el caso extenso), hook `useSubmitWholesaleOrder` (mutation TanStack Query + Axios) y campo teléfono en `OrderSummary`.
+
+### 15. Pedidos en el CMS
+
+- Rutas: `GET /api/wholesale/orders` (admin; orden `createdAt desc`) y `PATCH /api/wholesale/orders/[id]` (admin; solo `status`). Ambas con `requireAdminSession()`; 404 si no existe; 400 por estado inválido. No hay DELETE.
+- Página `app/admin/(protected)/mayorista/pedidos/page.tsx` con header estándar y contador de pedidos nuevos; componentes `wholesale-orders-table.tsx` (búsqueda por número/referencia/teléfono, filtro por estado, igual patrón que `orders-table.tsx`) y `wholesale-order-detail-sheet.tsx` (detalle agrupado, notas, estado, botón "Contactar por WhatsApp").
+- Enlace de contacto: `https://wa.me/<dígitos>`; si el teléfono tiene exactamente 10 dígitos (formato nacional sin código de país) se antepone `549`; en otro caso se asume que ya incluye el código de país. Documentado como convención de la UI, no se transforma el dato guardado.
+- Hooks: `use-wholesale-orders.ts` y `use-update-wholesale-order.ts`, con `wholesaleQueryKeys.orders = ['wholesale', 'orders']`.
 
 ## Risks / Trade-offs
 
@@ -273,7 +340,11 @@ Son **placeholders editables**: Melizza todavía no definió estos precios y los
 | El cliente no pega el detalle cuando solo llegó el resumen | Diálogo explícito, copia automática previa, ayuda permanente junto a los botones; Melizza puede pedir el detalle por chat |
 | El usuario no pulsa “Enviar” en WhatsApp y cree que pidió | Pantalla de confirmación explícita; borrador conservado; reabrir WhatsApp |
 | Precio estimado desactualizado respecto a lo que Melizza cotiza | Etiqueta “estimado”; el mensaje indica fecha/precios unitarios usados; Melizza confirma por chat |
-| Manipulación de precios en el cliente | Sin impacto: no hay cobro ni persistencia; Melizza valida contra el CMS al gestionar |
+| Manipulación de precios en el cliente | El servidor recalcula con reglas y catálogo vigentes y guarda sus propios totales; el cliente no envía precios |
+| Spam o pedidos falsos en `POST /api/wholesale/orders` (endpoint público) | Validación estricta, tope de líneas y cantidades, mínimos exigidos en servidor; sin rate limiting en esta versión (igual que el retail). Evaluar límite por IP si aparece abuso |
+| Pestaña de WhatsApp bloqueada tras guardar | Pestaña pre-abierta en el clic + pantalla "Pedido registrado" con "Abrir WhatsApp" |
+| Teléfono mal cargado por el cliente | Validación 8–15 dígitos, ayuda "con código de área, sin 0 ni 15"; Melizza cuenta además con el chat de WhatsApp |
+| Datos personales (teléfono) almacenados | Solo visibles en el CMS con sesión; sin exposición en APIs públicas |
 | Acoplamiento catálogo ↔ mayorista | Documentado como decisión; solo se comparte visibilidad, no precios |
 | `localStorage` con datos obsoletos | Versionado de clave + saneamiento al restaurar |
 | Falta de runner de tests en el repo | Introducir Vitest acotado a `lib/wholesale/` (dependencia de desarrollo mínima) |
@@ -287,7 +358,9 @@ Son **placeholders editables**: Melizza todavía no definió estos precios y los
 4. Desplegar API + CMS; Melizza revisa y confirma precios.
 5. Desplegar `/mayorista` y enlaces de navegación.
 
-**Producción:** los pasos 1–3 se ejecutaron solo en la base de desarrollo. Para producción, aplicar la migración con `npx prisma migrate deploy` y sembrar con `npm run seed:wholesale` **antes** del deploy del código (ver sección 12 de `tasks.md`).
+**Producción (primera versión):** ya aplicada (migración `add_wholesale_models` + `npm run seed:wholesale`).
+
+**Revisión (pedidos persistidos):** segunda migración aditiva `add_wholesale_orders`. Se prueba primero en la base de desarrollo; para producción se aplica **antes** del deploy del código (ver sección 14 de `tasks.md`). No requiere seed. Rollback: `isEnabled = false` o revertir el deploy; la tabla nueva es inerte.
 
 **Rollback:** ocultar la sección con `isEnabled = false` (sin deploy) o revertir el deploy del frontend. Las tablas nuevas son inertes para el retail y para `tikkiguau-tiendas`; no se eliminan en un rollback rápido.
 
@@ -297,10 +370,20 @@ Son **placeholders editables**: Melizza todavía no definió estos precios y los
 2. Los precios de collar y correa son **valores provisorios**: Melizza no los definió; se siembran los de la sección 10 y se ajustan luego desde el CMS.
 3. El mínimo por color se suma por **categoría + talla + color**.
 4. Si ambos requisitos del pedido están activos, se exigen **ambos** (unidades Y monto).
-5. `/mayorista` es **público e indexable**, con enlace en Navbar y Footer.
-6. Se incluye el botón **"Copiar texto"** con ayuda para pegar el pedido en WhatsApp; si el mensaje supera el largo de URL, WhatsApp recibe un **resumen breve** y el cliente pega el detalle completo.
+5. `/mayorista` es **público e indexable** (sitemap). ~~Enlace en Navbar y Footer~~ → **revisión:** sin enlaces desde la home; acceso por URL directa.
+6. Si el mensaje supera el largo de URL, WhatsApp recibe un **resumen breve** y el cliente pega el detalle completo con el botón **"Copiar texto"** (que ahora aparece solo en ese caso, con instrucciones).
 7. Las unidades totales **suman todas las categorías**.
 8. Se incorpora **Vitest** como dependencia de desarrollo.
+
+**Revisión (octubre 2026, validada con Melizza):**
+
+9. Los pedidos mayoristas **se guardan** en la base de datos (`wholesale_orders`) y se ven en el CMS en **Mayorista → Pedidos**, separados de las órdenes minoristas.
+10. El formulario pide **teléfono** obligatorio; no se pide nombre (la referencia identifica al cliente).
+11. Botón **"Enviar pedido"** → diálogo de confirmación ("Seguir editando" / "Confirmar y enviar") → guarda y abre WhatsApp.
+12. Estados: **Nuevo → Contactado → Cerrado**, más **Cancelado**.
+13. **Sin email** a Melizza ni al cliente.
+14. Si falla el guardado, **no se abre WhatsApp** y el cliente reintenta.
+15. Formato de número de pedido `WH-1001`; el número se incluye en el mensaje de WhatsApp.
 
 ## Open Questions
 

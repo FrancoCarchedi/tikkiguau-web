@@ -1,5 +1,8 @@
-## ADDED Requirements
+# wholesale-pricing-rules Specification
 
+## Purpose
+TBD - created by archiving change wholesale-orders. Update Purpose after archive.
+## Requirements
 ### Requirement: Reglas mayoristas independientes del retail
 
 El sistema SHALL almacenar precios, mínimos y requisitos mayoristas en tablas propias, sin reutilizar ni modificar `product_prices`, `shipping_prices`, `orders` ni las tablas `catalog_*`. Cambiar una regla mayorista MUST NOT alterar precios, disponibilidad ni comportamiento del flujo minorista (`/disenar`, `POST /api/orders`, Mercado Pago, emails).
@@ -111,16 +114,16 @@ Cada bandera MUST poder activarse o desactivarse sin perder el valor guardado. C
 
 ### Requirement: Admin puede habilitar o deshabilitar la sección mayorista
 
-El sistema SHALL ofrecer un interruptor `isEnabled`. Cuando es `false`, `/mayorista` MUST mostrar un mensaje de no disponibilidad con enlace de contacto por WhatsApp, y Navbar y Footer MUST ocultar los enlaces a la sección. El valor inicial SHALL ser `true`.
+El sistema SHALL ofrecer un interruptor `isEnabled`. Cuando es `false`, `/mayorista` MUST mostrar un mensaje de no disponibilidad con enlace de contacto por WhatsApp y `POST /api/wholesale/orders` MUST rechazar nuevos pedidos. Los pedidos ya recibidos MUST seguir visibles en el CMS. El valor inicial SHALL ser `true`.
 
 #### Scenario: Deshabilitar la sección
 
 - **WHEN** un administrador pone `isEnabled` en `false`
-- **THEN** `/mayorista` no muestra el armador de pedido y los enlaces de navegación desaparecen
+- **THEN** `/mayorista` no muestra el armador de pedido y la API rechaza nuevos pedidos mayoristas
 
 ### Requirement: Interfaz de administración del módulo Mayorista
 
-El sistema SHALL ofrecer la página `/admin/mayorista`, protegida por sesión y enlazada desde el sidebar del CMS, con (a) una tabla de precios y mínimos por categoría y talla, (b) el formulario de requisitos del pedido y (c) el interruptor general. El formulario MUST validar con zod antes de enviar y MUST informar éxito o error con notificaciones.
+El sistema SHALL ofrecer la página `/admin/mayorista` (configuración), protegida por sesión y enlazada desde el grupo "Mayorista" del sidebar del CMS junto con "Pedidos" (`/admin/mayorista/pedidos`, ver `wholesale-order-records`), con (a) una tabla de precios y mínimos por categoría y talla, (b) el formulario de requisitos del pedido y (c) el interruptor general. El formulario MUST validar con zod antes de enviar y MUST informar éxito o error con notificaciones.
 
 #### Scenario: Acceso sin sesión
 
@@ -150,3 +153,4 @@ El sistema SHALL exponer a `/mayorista`, sin autenticación, la configuración v
 
 - **WHEN** la lectura de configuración falla
 - **THEN** `/mayorista` muestra un estado de error con enlace de contacto por WhatsApp y MUST NOT mostrar precios por defecto hardcodeados
+

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  ClipboardListIcon,
   LogOutIcon,
   PackageIcon,
   StoreIcon,
@@ -50,6 +51,7 @@ const catalogItems = [
 
 const wholesaleItems = [
   { title: 'Reglas y precios', href: '/admin/mayorista', icon: WarehouseIcon },
+  { title: 'Pedidos', href: '/admin/mayorista/pedidos', icon: ClipboardListIcon },
 ]
 
 export function AdminSidebar({ user }: { user: User }) {

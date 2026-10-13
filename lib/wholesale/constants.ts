@@ -41,6 +41,10 @@ export const MAX_UNITS_PER_ITEM = 9999
 export const REFERENCE_MIN_LENGTH = 3
 export const REFERENCE_MAX_LENGTH = 80
 export const NOTES_MAX_LENGTH = 500
+export const PHONE_MAX_LENGTH = 30
+
+/** Número provisorio para estimar el largo del mensaje antes de que el servidor asigne el definitivo. */
+export const PROVISIONAL_ORDER_NUMBER = 'WH-00000'
 
 /** Largo máximo (ya codificado) de la URL de wa.me antes de usar el resumen breve. */
 export const WHATSAPP_MAX_URL_LENGTH = 6000

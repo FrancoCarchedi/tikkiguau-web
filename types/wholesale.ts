@@ -67,5 +67,65 @@ export interface WholesaleOrderEvaluation {
 export interface WholesaleDraft {
   lines: WholesaleOrderLine[]
   reference: string
+  phone: string
   notes: string
+}
+
+export type WholesaleOrderStatus = 'NEW' | 'CONTACTED' | 'CLOSED' | 'CANCELLED'
+
+export interface WholesaleOrderItemSnapshot {
+  itemKey: string
+  label: string
+  quantity: number
+}
+
+export interface WholesaleOrderGroupSnapshot {
+  category: WholesaleCategory
+  size: WholesaleSizeValue
+  colorHex: string
+  colorName: string
+  unitPriceArs: number
+  units: number
+  subtotalArs: number
+  /** Vacío para collares y correas (se venden lisos). */
+  items: WholesaleOrderItemSnapshot[]
+}
+
+export interface WholesaleOrderDto {
+  id: string
+  orderNumber: string
+  reference: string
+  phone: string
+  notes: string | null
+  status: WholesaleOrderStatus
+  totalUnits: number
+  totalAmountArs: number
+  groups: WholesaleOrderGroupSnapshot[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateWholesaleOrderPayload {
+  reference: string
+  phone: string
+  notes: string
+  lines: WholesaleOrderLine[]
+}
+
+export interface CreateWholesaleOrderResult {
+  id: string
+  orderNumber: string
+}
+
+/** Estado en memoria del pedido ya guardado, usado por la pantalla "Pedido registrado". */
+export interface SubmittedWholesaleOrder {
+  orderNumber: string
+  reference: string
+  totalUnits: number
+  totalAmountArs: number
+  whatsappUrl: string
+  /** true cuando el mensaje completo no entra en la URL y WhatsApp recibe solo un resumen. */
+  isSummaryOnly: boolean
+  fullMessage: string
+  wasWhatsAppOpened: boolean
 }

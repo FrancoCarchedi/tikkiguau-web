@@ -30,6 +30,7 @@ interface OrderState {
   selection: WholesaleSelection | null
   lines: WholesaleOrderLine[]
   reference: string
+  phone: string
   notes: string
   isHydrated: boolean
 }
@@ -40,6 +41,7 @@ type OrderAction =
   | { type: 'set-quantity'; line: Omit<WholesaleOrderLine, 'quantity'>; quantity: number }
   | { type: 'remove-group'; category: WholesaleCategory; size: WholesaleSizeValue; colorHex: string }
   | { type: 'set-reference'; reference: string }
+  | { type: 'set-phone'; phone: string }
   | { type: 'set-notes'; notes: string }
   | { type: 'clear' }
 
@@ -55,6 +57,7 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
         ...state,
         lines: action.draft.lines,
         reference: action.draft.reference,
+        phone: action.draft.phone,
         notes: action.draft.notes,
         isHydrated: true,
       }
@@ -79,10 +82,12 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
     }
     case 'set-reference':
       return { ...state, reference: action.reference }
+    case 'set-phone':
+      return { ...state, phone: action.phone }
     case 'set-notes':
       return { ...state, notes: action.notes }
     case 'clear':
-      return { ...state, lines: [], reference: '', notes: '' }
+      return { ...state, lines: [], reference: '', phone: '', notes: '' }
   }
 }
 
@@ -104,8 +109,13 @@ export function useWholesaleOrder({ catalog, config }: UseWholesaleOrderParams) 
 
   useEffect(() => {
     if (!state.isHydrated) return
-    saveWholesaleDraft({ lines: state.lines, reference: state.reference, notes: state.notes })
-  }, [state.isHydrated, state.lines, state.reference, state.notes])
+    saveWholesaleDraft({
+      lines: state.lines,
+      reference: state.reference,
+      phone: state.phone,
+      notes: state.notes,
+    })
+  }, [state.isHydrated, state.lines, state.reference, state.phone, state.notes])
 
   const sortContext = useMemo(() => buildSortContext(catalog), [catalog])
 
@@ -163,6 +173,8 @@ export function useWholesaleOrder({ catalog, config }: UseWholesaleOrderParams) 
     []
   )
 
+  const setPhone = useCallback((phone: string) => dispatch({ type: 'set-phone', phone }), [])
+
   const setNotes = useCallback((notes: string) => dispatch({ type: 'set-notes', notes }), [])
 
   const clearOrder = useCallback(() => {
@@ -174,6 +186,7 @@ export function useWholesaleOrder({ catalog, config }: UseWholesaleOrderParams) 
     selection: state.selection,
     lines: sortedLines,
     reference: state.reference,
+    phone: state.phone,
     notes: state.notes,
     isHydrated: state.isHydrated,
     evaluation,
@@ -183,6 +196,7 @@ export function useWholesaleOrder({ catalog, config }: UseWholesaleOrderParams) 
     setQuantity,
     removeGroup,
     setReference,
+    setPhone,
     setNotes,
     clearOrder,
   }

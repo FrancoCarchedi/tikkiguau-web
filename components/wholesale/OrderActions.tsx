@@ -1,67 +1,117 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { copyToClipboard } from "@/lib/copy-to-clipboard";
+import { useSubmitWholesaleOrder } from "@/hooks/use-submit-wholesale-order";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import {
   resolveWhatsAppPayload,
+  sanitizeReference,
   type WholesaleMessageInput,
+  type WholesaleWhatsAppPayload,
 } from "@/lib/wholesale/build-whatsapp-message";
-import CopyOrderTextButton from "./CopyOrderTextButton";
-import LargeOrderDialog from "./LargeOrderDialog";
+import { PROVISIONAL_ORDER_NUMBER } from "@/lib/wholesale/constants";
+import type {
+  CreateWholesaleOrderPayload,
+  SubmittedWholesaleOrder,
+} from "@/types/wholesale";
+import ConfirmOrderDialog from "./ConfirmOrderDialog";
 import SendOrderButton from "./SendOrderButton";
 
+const SUBMIT_FALLBACK_ERROR =
+  "No pudimos registrar tu pedido. Revisá tu conexión e intentá de nuevo.";
+
 interface OrderActionsProps {
-  messageInput: WholesaleMessageInput;
+  messageInput: Omit<WholesaleMessageInput, "orderNumber">;
+  orderPayload: CreateWholesaleOrderPayload;
   canSend: boolean;
   pendingReasons: string[];
-  onStartNewOrder: () => void;
+  onSubmitted: (submittedOrder: SubmittedWholesaleOrder) => void;
+}
+
+/**
+ * Los navegadores solo permiten abrir pestañas dentro del gesto del usuario. Como WhatsApp se
+ * abre después de guardar (asíncrono), la pestaña se reserva en el clic y se redirige al guardar.
+ */
+function redirectReservedTab(
+  reservedTab: Window | null,
+  whatsappPayload: WholesaleWhatsAppPayload
+): boolean {
+  if (!reservedTab) return false
+
+  if (whatsappPayload.isSummaryOnly) {
+    reservedTab.close()
+    return false
+  }
+
+  reservedTab.opener = null
+  reservedTab.location.href = whatsappPayload.url
+  return true
 }
 
 export default function OrderActions({
   messageInput,
+  orderPayload,
   canSend,
   pendingReasons,
-  onStartNewOrder,
+  onSubmitted,
 }: OrderActionsProps) {
-  const [isLargeDialogOpen, setIsLargeDialogOpen] = useState(false);
-  const [wasCopiedAutomatically, setWasCopiedAutomatically] = useState(false);
-  const [wasWhatsAppOpened, setWasWhatsAppOpened] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { mutate: submitOrder, isPending: isSubmitting } = useSubmitWholesaleOrder();
 
-  const payload = useMemo(
-    () => (canSend ? resolveWhatsAppPayload(messageInput) : null),
-    [canSend, messageInput]
+  const confirmSummary = useMemo(
+    () => ({
+      reference: sanitizeReference(messageInput.reference),
+      phone: orderPayload.phone.trim(),
+      totalUnits: messageInput.evaluation.totalUnits,
+      totalAmountArs: messageInput.evaluation.totalAmountArs,
+    }),
+    [messageInput, orderPayload.phone]
   );
 
-  function openWhatsApp() {
-    if (!payload) return;
-    window.open(payload.url, "_blank", "noopener,noreferrer");
-    setIsLargeDialogOpen(false);
-    setWasWhatsAppOpened(true);
+  function handleOpenDialog() {
+    setErrorMessage(null);
+    setIsDialogOpen(true);
   }
 
-  async function handleSend() {
-    if (!payload) return;
+  function handleConfirm() {
+    const provisionalPayload = resolveWhatsAppPayload({
+      ...messageInput,
+      orderNumber: PROVISIONAL_ORDER_NUMBER,
+    });
+    const reservedTab = provisionalPayload.isSummaryOnly ? null : window.open("", "_blank");
 
-    if (!payload.isSummaryOnly) {
-      openWhatsApp();
-      return;
-    }
+    setErrorMessage(null);
+    submitOrder(orderPayload, {
+      onSuccess: ({ orderNumber }) => {
+        const whatsappPayload = resolveWhatsAppPayload({ ...messageInput, orderNumber });
+        const wasWhatsAppOpened = redirectReservedTab(reservedTab, whatsappPayload);
 
-    // La copia debe iniciarse dentro del gesto del clic para que los navegadores móviles la permitan.
-    setWasCopiedAutomatically(false);
-    setIsLargeDialogOpen(true);
-    setWasCopiedAutomatically(await copyToClipboard(payload.fullMessage));
+        setIsDialogOpen(false);
+        onSubmitted({
+          orderNumber,
+          reference: confirmSummary.reference,
+          totalUnits: confirmSummary.totalUnits,
+          totalAmountArs: confirmSummary.totalAmountArs,
+          whatsappUrl: whatsappPayload.url,
+          isSummaryOnly: whatsappPayload.isSummaryOnly,
+          fullMessage: whatsappPayload.fullMessage,
+          wasWhatsAppOpened,
+        });
+      },
+      onError: (error) => {
+        reservedTab?.close();
+        setErrorMessage(getApiErrorMessage(error, SUBMIT_FALLBACK_ERROR));
+      },
+    });
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <SendOrderButton disabled={!canSend} onSend={handleSend} />
-      <CopyOrderTextButton message={payload?.fullMessage ?? ""} disabled={!canSend} />
+      <SendOrderButton disabled={!canSend} onSend={handleOpenDialog} />
 
       <p className="text-xs leading-relaxed text-zinc-500">
-        Si WhatsApp no trae tu pedido completo, tocá <strong>«Copiar texto»</strong> y pegalo en el
-        chat.
+        Al enviar, tu pedido queda registrado y se abre WhatsApp para que se lo mandes a TikkiGuau.
       </p>
 
       {!canSend && pendingReasons.length > 0 && (
@@ -72,43 +122,14 @@ export default function OrderActions({
         </ul>
       )}
 
-      {wasWhatsAppOpened && payload && (
-        <div
-          role="status"
-          className="flex flex-col gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900"
-        >
-          <p>
-            Abrimos WhatsApp. <strong>Presioná «Enviar» en el chat</strong> para completar tu pedido.
-            Guardamos tu borrador por si necesitás reintentar.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" size="sm" variant="outline" onClick={openWhatsApp}>
-              Volver a abrir WhatsApp
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setWasWhatsAppOpened(false);
-                onStartNewOrder();
-              }}
-            >
-              Empezar un pedido nuevo
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {payload && (
-        <LargeOrderDialog
-          open={isLargeDialogOpen}
-          onOpenChange={setIsLargeDialogOpen}
-          fullMessage={payload.fullMessage}
-          wasCopiedAutomatically={wasCopiedAutomatically}
-          onOpenWhatsApp={openWhatsApp}
-        />
-      )}
+      <ConfirmOrderDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        summary={confirmSummary}
+        isSubmitting={isSubmitting}
+        errorMessage={errorMessage}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 }
