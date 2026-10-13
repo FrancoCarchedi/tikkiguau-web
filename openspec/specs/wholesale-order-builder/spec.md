@@ -1,5 +1,8 @@
-## ADDED Requirements
+# wholesale-order-builder Specification
 
+## Purpose
+TBD - created by archiving change wholesale-orders. Update Purpose after archive.
+## Requirements
 ### Requirement: Ruta pública del armador mayorista
 
 El sistema SHALL servir `/mayorista` como página pública sin autenticación ni registro. La página MUST renderizarse con la configuración mayorista y el catálogo vigentes y MUST seguir la estética de marca TikkiGuau (sin referencias a Printonic).
@@ -144,7 +147,7 @@ El resumen SHALL mostrar, solo para los requisitos activos, el progreso y lo que
 
 ### Requirement: Resumen lateral "Tu pedido"
 
-El sistema SHALL mostrar un resumen persistente (columna lateral en escritorio; bloque inferior con barra resumen fija en móvil) con: unidades totales, estado de los requisitos, precio estimado, detalle por combinación con subtotal y estado del mínimo por color (cumple / faltan N), campo **Referencia del pedido** (obligatorio, 3 a 80 caracteres), campo **Notas** (opcional, hasta 500 caracteres) y la acción de envío.
+El sistema SHALL mostrar un resumen persistente (columna lateral en escritorio; bloque inferior con barra resumen fija en móvil) con: unidades totales, estado de los requisitos, precio estimado, detalle por combinación con subtotal y estado del mínimo por color (cumple / faltan N), campo **Referencia del pedido** (obligatorio, 3 a 80 caracteres), campo **Teléfono de contacto** (obligatorio, 8 a 15 dígitos, con ayuda "con código de área, sin 0 ni 15"), campo **Notas** (opcional, hasta 500 caracteres) y la acción "Enviar pedido".
 
 #### Scenario: Detalle por combinación
 
@@ -161,14 +164,19 @@ El sistema SHALL mostrar un resumen persistente (columna lateral en escritorio; 
 - **WHEN** el pedido es válido pero la referencia está vacía
 - **THEN** la acción de envío permanece deshabilitada e indica que falta la referencia
 
+#### Scenario: Teléfono obligatorio
+
+- **WHEN** el pedido es válido y tiene referencia, pero el teléfono está vacío o es inválido
+- **THEN** la acción de envío permanece deshabilitada e indica que falta un teléfono válido
+
 ### Requirement: Persistencia local del borrador
 
-El sistema SHOULD conservar el borrador del pedido (cantidades, referencia y notas) en el navegador del usuario, para sobrevivir a una recarga. Al restaurarlo, el sistema MUST descartar los ítems cuya categoría, talla, color o elemento ya no estén disponibles. El sistema MUST ofrecer una acción "Vaciar pedido" con confirmación.
+El sistema SHOULD conservar el borrador del pedido (cantidades, referencia, teléfono y notas) en el navegador del usuario, para sobrevivir a una recarga. Al registrarse correctamente un pedido, el borrador MUST eliminarse. Al restaurarlo, el sistema MUST descartar los ítems cuya categoría, talla, color o elemento ya no estén disponibles. El sistema MUST ofrecer una acción "Vaciar pedido" con confirmación.
 
 #### Scenario: Recarga de la página
 
 - **WHEN** el usuario carga cantidades y recarga la página
-- **THEN** las cantidades, la referencia y las notas se restauran
+- **THEN** las cantidades, la referencia, el teléfono y las notas se restauran
 
 #### Scenario: Ítem retirado del catálogo
 
@@ -192,3 +200,4 @@ El armador SHALL ser utilizable desde 360 px de ancho. Los controles MUST ser op
 
 - **WHEN** el usuario abre `/mayorista` en un viewport de 360 px
 - **THEN** puede completar color, cantidades y envío sin scroll horizontal de la página
+

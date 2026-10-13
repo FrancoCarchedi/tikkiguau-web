@@ -1,7 +1,7 @@
 "use client";
 
+import { SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import WhatsAppIcon from "./WhatsAppIcon";
 
 interface SendOrderButtonProps {
   disabled: boolean;
@@ -15,10 +15,10 @@ export default function SendOrderButton({ disabled, onSend }: SendOrderButtonPro
       size="lg"
       disabled={disabled}
       onClick={onSend}
-      className="h-12 w-full gap-2 bg-[#25D366] text-base font-semibold text-white hover:bg-[#1fb857] disabled:bg-[#25D366]/40"
+      className="h-12 w-full gap-2 bg-[#C70F11] text-base font-semibold text-white hover:bg-[#a50d0f] disabled:bg-[#C70F11]/40"
     >
-      <WhatsAppIcon className="size-5" />
-      Enviar pedido por WhatsApp
+      <SendIcon className="size-5" aria-hidden />
+      Enviar pedido
     </Button>
   );
 }

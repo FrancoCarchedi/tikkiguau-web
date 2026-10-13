@@ -306,3 +306,29 @@ model WholesaleSettings {
 
   @@map("wholesale_settings")
 }
+
+enum WholesaleOrderStatus {
+  NEW
+  CONTACTED
+  CLOSED
+  CANCELLED
+}
+
+/// Pedido mayorista recibido desde /mayorista. Aislado de `Order` (retail): sin relaciones con otras tablas.
+/// `items` es un snapshot histórico (precios, nombres y cantidades vigentes al crear el pedido).
+model WholesaleOrder {
+  id             String               @id @default(cuid())
+  orderNumber    String               @unique
+  reference      String
+  phone          String
+  notes          String?
+  status         WholesaleOrderStatus @default(NEW)
+  totalUnits     Int
+  totalAmountArs Int
+  items          Json
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([status, createdAt])
+  @@map("wholesale_orders")
+}

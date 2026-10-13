@@ -5,6 +5,7 @@ import { isLineAvailable } from './catalog-options'
 import {
   MAX_UNITS_PER_ITEM,
   NOTES_MAX_LENGTH,
+  PHONE_MAX_LENGTH,
   REFERENCE_MAX_LENGTH,
   WHOLESALE_DRAFT_STORAGE_KEY,
 } from './constants'
@@ -12,6 +13,7 @@ import {
 const draftSchema = z.object({
   version: z.literal(1),
   reference: z.string().max(REFERENCE_MAX_LENGTH).default(''),
+  phone: z.string().max(PHONE_MAX_LENGTH).default(''),
   notes: z.string().max(NOTES_MAX_LENGTH).default(''),
   lines: z.array(
     z.object({
@@ -24,7 +26,7 @@ const draftSchema = z.object({
   ),
 })
 
-export const EMPTY_DRAFT: WholesaleDraft = { lines: [], reference: '', notes: '' }
+export const EMPTY_DRAFT: WholesaleDraft = { lines: [], reference: '', phone: '', notes: '' }
 
 /** Descarta líneas cuyo elemento, color, talla o categoría ya no están disponibles. */
 export function pruneUnavailableLines(
@@ -48,6 +50,7 @@ export function loadWholesaleDraft(
 
     return {
       reference: parsed.data.reference,
+      phone: parsed.data.phone,
       notes: parsed.data.notes,
       lines: pruneUnavailableLines(parsed.data.lines, catalog, config),
     }

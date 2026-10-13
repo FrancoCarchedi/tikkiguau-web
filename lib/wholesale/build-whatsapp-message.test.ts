@@ -40,6 +40,7 @@ function buildInput(
   overrides: Partial<Pick<WholesaleMessageInput, 'reference' | 'notes'>> = {}
 ): WholesaleMessageInput {
   return {
+    orderNumber: 'WH-1001',
     reference: 'Pedido junio — Melisa',
     notes: '',
     lines,
@@ -61,6 +62,7 @@ describe('buildWholesaleWhatsAppMessage', () => {
     const message = buildWholesaleWhatsAppMessage(buildInput(letterLines))
 
     expect(message).toContain('*Pedido mayorista TikkiGuau*')
+    expect(message).toContain('Pedido: WH-1001')
     expect(message).toContain('Referencia: Pedido junio — Melisa')
     expect(message).toContain('*Letras · Talla 2 (Mediana)* · $881 c/u')
     expect(message).toContain('• Azul · 25 u · $22.025 → A×10, B×10, C×5')
@@ -134,6 +136,7 @@ describe('resolveWhatsAppPayload', () => {
 
     expect(payload.isSummaryOnly).toBe(true)
     expect(payload.url.length).toBeLessThanOrEqual(WHATSAPP_MAX_URL_LENGTH)
+    expect(decodeURIComponent(payload.url)).toContain('Pedido: WH-1001')
     expect(decodeURIComponent(payload.url)).toContain('Referencia: Pedido junio — Melisa')
     expect(decodeURIComponent(payload.url)).toContain('Total: 13000 unidades')
     expect(payload.fullMessage).toContain('A×25')

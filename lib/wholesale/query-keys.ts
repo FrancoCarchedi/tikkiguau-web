@@ -2,6 +2,7 @@ export const wholesaleQueryKeys = {
   all: ['wholesale'] as const,
   settings: ['wholesale', 'settings'] as const,
   priceRules: ['wholesale', 'price-rules'] as const,
+  orders: ['wholesale', 'orders'] as const,
 }
 
 export function invalidateWholesaleQueries(queryClient: {

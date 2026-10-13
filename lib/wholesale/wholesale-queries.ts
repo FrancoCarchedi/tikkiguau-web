@@ -27,13 +27,3 @@ export async function getPublicWholesaleConfig(): Promise<PublicWholesaleConfig>
     priceRules: rules.map(mapWholesalePriceRule),
   }
 }
-
-/** Para Navbar/Footer: ante cualquier falla oculta el enlace en lugar de romper la landing. */
-export async function isWholesaleEnabled(): Promise<boolean> {
-  try {
-    const config = await getPublicWholesaleConfig()
-    return config.settings.isEnabled && config.priceRules.length > 0
-  } catch {
-    return false
-  }
-}

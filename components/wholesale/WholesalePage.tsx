@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
@@ -29,10 +29,17 @@ import {
 import { sanitizeReference, type WholesaleMessageInput } from "@/lib/wholesale/build-whatsapp-message";
 import { formatWholesaleArs } from "@/lib/wholesale/format";
 import { findPriceRule } from "@/lib/wholesale/order-calculator";
-import type { PublicWholesaleConfig, WholesaleCategory } from "@/types/wholesale";
+import { wholesalePhoneSchema } from "@/lib/wholesale/order-schemas";
+import type {
+  CreateWholesaleOrderPayload,
+  PublicWholesaleConfig,
+  SubmittedWholesaleOrder,
+  WholesaleCategory,
+} from "@/types/wholesale";
 import CategorySizeSelector from "./CategorySizeSelector";
 import ColorPicker from "./ColorPicker";
 import OrderActions from "./OrderActions";
+import OrderSubmittedView from "./OrderSubmittedView";
 import OrderSummary from "./OrderSummary";
 import PlainProductQuantity from "./PlainProductQuantity";
 import QuantityGrid from "./QuantityGrid";
@@ -50,6 +57,7 @@ export default function WholesalePage({ config }: WholesalePageProps) {
   const catalog = useRequiredCatalog();
   const order = useWholesaleOrder({ catalog, config });
   const { selection, evaluation, lines } = order;
+  const [submittedOrder, setSubmittedOrder] = useState<SubmittedWholesaleOrder | null>(null);
 
   const categories = useMemo(() => getAvailableCategories(config), [config]);
 
@@ -61,7 +69,7 @@ export default function WholesalePage({ config }: WholesalePageProps) {
     return totals;
   }, [evaluation.groups]);
 
-  const messageInput = useMemo<WholesaleMessageInput>(
+  const messageInput = useMemo<Omit<WholesaleMessageInput, "orderNumber">>(
     () => ({
       reference: order.reference,
       notes: order.notes,
@@ -71,6 +79,16 @@ export default function WholesalePage({ config }: WholesalePageProps) {
       resolveItemLabel: (category, itemKey) => getItemLabel(catalog, category, itemKey),
     }),
     [order.reference, order.notes, lines, evaluation, catalog]
+  );
+
+  const orderPayload = useMemo<CreateWholesaleOrderPayload>(
+    () => ({
+      reference: sanitizeReference(order.reference),
+      phone: order.phone.trim(),
+      notes: order.notes,
+      lines,
+    }),
+    [order.reference, order.phone, order.notes, lines]
   );
 
   if (!selection || categories.length === 0) {
@@ -115,8 +133,27 @@ export default function WholesalePage({ config }: WholesalePageProps) {
     referenceLength < REFERENCE_MIN_LENGTH
       ? `Ingresá una referencia de al menos ${REFERENCE_MIN_LENGTH} caracteres`
       : null;
-  const canSend = evaluation.isValid && !referenceError;
-  const pendingReasons = [...evaluation.blockingReasons, ...(referenceError ? [referenceError] : [])];
+  const phoneValidation = wholesalePhoneSchema.safeParse(order.phone);
+  const phoneError = phoneValidation.success
+    ? null
+    : (phoneValidation.error.issues[0]?.message ?? "Ingresá un teléfono válido");
+
+  const canSend = evaluation.isValid && !referenceError && !phoneError;
+  const pendingReasons = [
+    ...evaluation.blockingReasons,
+    ...(referenceError ? [referenceError] : []),
+    ...(phoneError ? [phoneError] : []),
+  ];
+
+  function handleStartNewOrder() {
+    setSubmittedOrder(null);
+  }
+
+  function handleOrderSubmitted(newSubmittedOrder: SubmittedWholesaleOrder) {
+    order.clearOrder();
+    setSubmittedOrder(newSubmittedOrder);
+    window.scrollTo({ top: 0 });
+  }
 
   const headerRequirement = evaluation.unitsRequirement
     ? `Mín. ${evaluation.unitsRequirement.required} u`
@@ -154,18 +191,20 @@ export default function WholesalePage({ config }: WholesalePageProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-600">
-              {headerRequirement}
-              <span
-                className={cn(
-                  "rounded-full bg-zinc-900 px-2 py-0.5 text-white tabular-nums",
-                  headerRequirement && "ml-2"
-                )}
-                aria-label={`${evaluation.totalUnits} unidades cargadas`}
-              >
-                {evaluation.totalUnits} u
+            {!submittedOrder && (
+              <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-600">
+                {headerRequirement}
+                <span
+                  className={cn(
+                    "rounded-full bg-zinc-900 px-2 py-0.5 text-white tabular-nums",
+                    headerRequirement && "ml-2"
+                  )}
+                  aria-label={`${evaluation.totalUnits} unidades cargadas`}
+                >
+                  {evaluation.totalUnits} u
+                </span>
               </span>
-            </span>
+            )}
             <Link
               href="/"
               className="hidden items-center gap-1 text-sm font-medium text-zinc-500 hover:text-[#C70F11] sm:flex"
@@ -176,6 +215,14 @@ export default function WholesalePage({ config }: WholesalePageProps) {
         </div>
       </header>
 
+      {submittedOrder ? (
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <OrderSubmittedView
+            submittedOrder={submittedOrder}
+            onStartNewOrder={handleStartNewOrder}
+          />
+        </main>
+      ) : (
       <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-8">
         <div className="flex min-w-0 flex-col gap-6">
           <CategorySizeSelector
@@ -236,25 +283,30 @@ export default function WholesalePage({ config }: WholesalePageProps) {
               getItemLabel(catalog, summaryCategory, itemKey)
             }
             reference={order.reference}
+            phone={order.phone}
             notes={order.notes}
             referenceError={referenceError}
+            phoneError={phoneError}
             resolveColorName={(summaryCategory, summaryColorHex) =>
               getColorName(catalog, summaryCategory, summaryColorHex)
             }
             onChangeReference={order.setReference}
+            onChangePhone={order.setPhone}
             onChangeNotes={order.setNotes}
             onRemoveGroup={order.removeGroup}
             onClearOrder={order.clearOrder}
           >
             <OrderActions
               messageInput={messageInput}
+              orderPayload={orderPayload}
               canSend={canSend}
               pendingReasons={pendingReasons}
-              onStartNewOrder={order.clearOrder}
+              onSubmitted={handleOrderSubmitted}
             />
           </OrderSummary>
         </div>
       </main>
+      )}
 
       <footer className="mx-auto max-w-7xl px-4 pb-8 pt-2 text-center text-xs text-zinc-500 sm:px-6 lg:px-8">
         Pedido por mayor TikkiGuau · Los precios son estimados, sin envío, y se confirman por{" "}
@@ -269,6 +321,7 @@ export default function WholesalePage({ config }: WholesalePageProps) {
         .
       </footer>
 
+      {!submittedOrder && (
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
           <div>
@@ -293,6 +346,7 @@ export default function WholesalePage({ config }: WholesalePageProps) {
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }

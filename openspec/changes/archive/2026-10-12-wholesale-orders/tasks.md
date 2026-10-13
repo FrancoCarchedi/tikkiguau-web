@@ -93,13 +93,75 @@
 Todo el trabajo anterior se ejecutó contra la base de **desarrollo**. La base de producción (compartida con `tikkiguau-tiendas`) todavía no tiene las tablas ni los datos mayoristas. Ejecutar en este orden; **la migración y el seed van antes del deploy del código**.
 
 - [ ] 12.1 Respaldo previo: crear un branch/snapshot de la base de producción en Neon (restauración rápida ante cualquier problema)
-- [ ] 12.2 Apuntar la terminal a producción **sin editar el `.env` local**: definir `DATABASE_URL` de producción solo para la sesión (PowerShell: `$env:DATABASE_URL = "<url de producción>"`; cerrar la terminal al terminar). Confirmar el destino antes de continuar: `npm run seed:wholesale` imprime el host y la base destino; abortar si no es producción
-- [ ] 12.3 Revisar el estado de migraciones con `npx prisma migrate status`: debe listar `20261004180000_add_wholesale_models` como pendiente y ninguna otra. Si Prisma informa historial divergente o migraciones fallidas, detenerse y revisar antes de seguir
-- [ ] 12.4 Aplicar la migración con `npx prisma migrate deploy` (nunca `migrate dev` ni `migrate reset` en producción). Es aditiva: solo `CREATE TYPE`/`CREATE TABLE`/`CREATE UNIQUE INDEX` de `wholesale_price_rules` y `wholesale_settings`, sin cambios sobre `orders`, `stores` ni `catalog_*`, por lo que no afecta a `tikkiguau-tiendas`
-- [ ] 12.5 Verificar la migración: `npx prisma migrate status` sin pendientes y las dos tablas existentes en Neon (vacías)
-- [ ] 12.6 Sembrar solo datos mayoristas con `npm run seed:wholesale` (no `npm run seed`, que además toca usuario admin y catálogo). Es idempotente y no pisa valores editados. Verificar 8 reglas de precio y 1 fila de ajustes
+- [x] 12.2 Apuntar la terminal a producción **sin editar el `.env` local**: definir `DATABASE_URL` de producción solo para la sesión (PowerShell: `$env:DATABASE_URL = "<url de producción>"`; cerrar la terminal al terminar). Confirmar el destino antes de continuar: `npm run seed:wholesale` imprime el host y la base destino; abortar si no es producción
+- [x] 12.3 Revisar el estado de migraciones con `npx prisma migrate status`: debe listar `20261004180000_add_wholesale_models` como pendiente y ninguna otra. Si Prisma informa historial divergente o migraciones fallidas, detenerse y revisar antes de seguir
+- [x] 12.4 Aplicar la migración con `npx prisma migrate deploy` (en esta máquina termina con código 0 sin aplicar nada, igual que en desarrollo; se aplicó el SQL de `migration.sql` en una transacción y se registró en `_prisma_migrations` con el checksum sha256 del archivo) (nunca `migrate dev` ni `migrate reset` en producción). Es aditiva: solo `CREATE TYPE`/`CREATE TABLE`/`CREATE UNIQUE INDEX` de `wholesale_price_rules` y `wholesale_settings`, sin cambios sobre `orders`, `stores` ni `catalog_*`, por lo que no afecta a `tikkiguau-tiendas`
+- [x] 12.5 Verificar la migración: `npx prisma migrate status` sin pendientes y las dos tablas existentes en Neon (vacías)
+- [x] 12.6 Sembrar solo datos mayoristas con `npm run seed:wholesale` (no `npm run seed`, que además toca usuario admin y catálogo). Es idempotente y no pisa valores editados. Verificar 8 reglas de precio y 1 fila de ajustes
 - [ ] 12.7 Desplegar el código a Vercel (el build ejecuta `prisma generate`; no corre migraciones). Confirmar que la variable `DATABASE_URL` del entorno de producción en Vercel apunta a la base de producción
 - [ ] 12.8 Smoke test en producción: `/admin/mayorista` carga reglas y ajustes; `/mayorista` renderiza con los datos sembrados; el enlace "Mayoristas" aparece en Navbar y Footer; `GET /api/catalog`, homepage y `/disenar` sin cambios
 - [ ] 12.9 Con Melizza, desde `/admin/mayorista` en producción: reemplazar los precios provisorios de collares y correas, confirmar mínimos por color y definir los requisitos del pedido (cierra 11.6). No enviar pedidos de prueba reales a WhatsApp sin avisarle
 - [ ] 12.10 Rollback si algo falla: poner `isEnabled = false` en `/admin/mayorista` (oculta la sección y los enlaces sin deploy) o revertir el deploy en Vercel. Las tablas nuevas son inertes para el retail y no se eliminan en un rollback rápido
 - [ ] 12.11 Cierre: archivar el change con `openspec archive wholesale-orders` una vez validado en producción y actualizar la sección "Roadmap" de `openspec/config.yaml`
+
+## 13. Revisión post-validación: pedidos persistidos, teléfono y confirmación
+
+Ajustes pedidos por Melizza tras validar la primera versión (ver "Revisión" en `proposal.md` y `design.md`, secciones 12–15). Esta sección **reemplaza** el flujo descrito en las tareas 9.1–9.4 (botón "Enviar pedido por WhatsApp" directo, "Copiar texto" siempre visible, sin persistencia) y la tarea 10.2 (enlaces en Navbar y Footer). Todo se desarrolla y prueba contra la base de **desarrollo**.
+
+### 13.1 Retirar enlaces de la home
+
+- [x] 13.1.1 Quitar el enlace "Mayoristas" y la prop `showWholesaleLink` de `components/web/Navbar.tsx` (escritorio y móvil) y de `components/web/Footer.tsx`
+- [x] 13.1.2 En `app/page.tsx` dejar de leer `isWholesaleEnabled()` y de pasar la prop; eliminar `isWholesaleEnabled` de `lib/wholesale/wholesale-queries.ts` (sin otros usos)
+- [x] 13.1.3 Verificación: la home no contiene `href="/mayorista"`; `/mayorista` y `sitemap.xml` siguen funcionando
+
+### 13.2 Modelo de datos y migración (solo desarrollo)
+
+- [x] 13.2.1 Agregar enum `WholesaleOrderStatus` y modelo `WholesaleOrder` (`wholesale_orders`) a `prisma/schema.prisma`, sin relaciones con modelos existentes
+- [x] 13.2.2 Generar la migración `add_wholesale_orders` y aplicarla en desarrollo (en esta máquina `prisma migrate` no aplica cambios: usar `prisma migrate diff` + aplicación manual del SQL y registro en `_prisma_migrations`, como en `add_wholesale_models`); `npx prisma generate`
+- [x] 13.2.3 Verificar que `migration.sql` solo contiene `CREATE TYPE`/`CREATE TABLE`/`CREATE INDEX` y que `prisma migrate diff` contra desarrollo queda vacío
+
+### 13.3 Lógica y API
+
+- [x] 13.3.1 Tipos en `types/wholesale.ts`: `WholesaleOrderStatus`, `WholesaleOrderDto`, `WholesaleOrderItemsSnapshot`, `CreateWholesaleOrderPayload`, `CreateWholesaleOrderResult`
+- [x] 13.3.2 `lib/wholesale/order-schemas.ts` (zod): `createWholesaleOrderSchema` (teléfono 8–15 dígitos, referencia, notas, líneas) y `updateWholesaleOrderSchema` (estado); extraer la regla de teléfono reutilizable sin modificar el comportamiento del flujo minorista
+- [x] 13.3.3 `lib/wholesale/create-wholesale-order.ts`: validar disponibilidad con `isLineAvailable`, recalcular con `evaluateWholesaleOrder`, armar snapshot, generar `WH-<n>` con reintento ante `P2002`, guardar
+- [x] 13.3.4 `lib/wholesale/order-mappers.ts`: Prisma ↔ DTO (parseo defensivo del snapshot)
+- [x] 13.3.5 `app/api/wholesale/orders/route.ts`: `POST` público (400/500 con mensajes en español, sin exponer errores de BD) y `GET` admin
+- [x] 13.3.6 `app/api/wholesale/orders/[id]/route.ts`: `PATCH` de estado (admin; 400/404/500)
+- [x] 13.3.7 `build-whatsapp-message.ts`: incluir `orderNumber` en el mensaje completo y en el resumen breve; actualizar tests existentes y agregar casos (con número de pedido, resumen dentro del límite)
+- [x] 13.3.8 Tests Vitest de `order-schemas` y de la validación/cálculo del servicio (con dependencias de BD inyectadas o funciones puras separadas): mínimos por color, requisitos, líneas no disponibles, duplicados, teléfono inválido
+- [x] 13.3.9 Verificación: `npm run test`, `npx tsc --noEmit`, `npm run lint` sin errores nuevos
+
+### 13.4 Formulario y flujo de envío (público)
+
+- [x] 13.4.1 Teléfono: `WholesaleDraft.phone`, `use-wholesale-order.ts` (`setPhone`), `draft-storage.ts` (campo opcional para compatibilidad con borradores `v1`), `OrderSummary` (campo "Teléfono de contacto" con ayuda y error) y `WholesalePage` (`phoneError`, `canSend`, `pendingReasons`)
+- [x] 13.4.2 Hook `hooks/use-submit-wholesale-order.ts` (mutation TanStack Query + Axios hacia `POST /api/wholesale/orders`, con mensaje de error legible)
+- [x] 13.4.3 `components/wholesale/ConfirmOrderDialog.tsx` (resumen, "Seguir editando", "Confirmar y enviar", carga y error); eliminar `LargeOrderDialog.tsx`
+- [x] 13.4.4 `SendOrderButton.tsx` ("Enviar pedido") y `OrderActions.tsx`: abrir el diálogo, pestaña pre-abierta de WhatsApp en el clic de confirmación (caso no extenso), guardar, redirigir o cerrar la pestaña, limpiar borrador
+- [x] 13.4.5 `components/wholesale/OrderSubmittedView.tsx`: número de pedido, resumen, "Abrir WhatsApp", "Hacer un pedido nuevo"; en caso extenso, instrucciones numeradas + "Copiar texto" (con campo seleccionable si falla el portapapeles); quitar "Copiar texto" y su ayuda del armador
+- [x] 13.4.6 Verificación manual en desarrollo: pedido corto (abre WhatsApp con número de pedido), pedido extenso (instrucciones + copiar + abrir), falla del guardado (no abre WhatsApp), doble clic (un solo pedido), pestaña bloqueada, "Seguir editando"
+
+### 13.5 CMS: pedidos mayoristas
+
+- [x] 13.5.1 Hooks `use-wholesale-orders.ts` y `use-update-wholesale-order.ts` (+ `wholesaleQueryKeys.orders`)
+- [x] 13.5.2 `app/admin/(protected)/components/wholesale-order-status-badge.tsx`, `wholesale-orders-table.tsx` (búsqueda por número/referencia/teléfono y filtro de estado) y `wholesale-order-detail-sheet.tsx` (detalle agrupado, notas, cambio de estado, botón "Contactar por WhatsApp")
+- [x] 13.5.3 Página `app/admin/(protected)/mayorista/pedidos/page.tsx` con contador de pedidos nuevos
+- [x] 13.5.4 Sidebar: enlace "Pedidos" en el grupo Mayorista
+- [x] 13.5.5 Verificación manual: el pedido aparece en Mayorista → Pedidos y no en `/admin`; cambio de estado persiste; 401 sin sesión en `GET`/`PATCH`; el snapshot no cambia al editar precios
+
+### 13.6 Documentación y cierre
+
+- [x] 13.6.1 Actualizar `docs/DOCUMENTATION.md` (sección 6.6) y `openspec/config.yaml` (estado, estructura, dominio) con pedidos persistidos, teléfono, flujo de confirmación y ausencia de enlaces en la home
+- [x] 13.6.2 `openspec validate wholesale-orders --strict` sin errores
+
+## 14. Puesta en producción de la revisión
+
+La primera versión ya está en producción (sección 12). Esta revisión agrega la tabla `wholesale_orders`. **Migración antes del deploy del código.**
+
+- [x] 14.1 Respaldo previo en Neon (branch/snapshot de producción): descartado por acuerdo (plan gratuito, sin `pg_dump` ni API key disponibles); la migración es aditiva y no toca tablas existentes
+- [x] 14.2 Definir `DATABASE_URL` de producción solo para la sesión de terminal (sin editar `.env`) y confirmar el host destino
+- [x] 14.3 `npx prisma migrate status`: debe listar solo `add_wholesale_orders` como pendiente
+- [x] 14.4 Aplicar la migración (`npx prisma migrate deploy`; si en esta máquina no aplica nada, aplicar el SQL en una transacción y registrarlo en `_prisma_migrations` con el checksum sha256) y verificar con `prisma migrate diff` (sin diferencias)
+- [ ] 14.5 Merge a `main` y deploy en Vercel (el build solo ejecuta `prisma generate`)
+- [ ] 14.6 Smoke test en producción: `/mayorista` (enviar un pedido de prueba y marcarlo como "Cancelado" en el CMS, avisando a Melizza), `/admin/mayorista/pedidos`, home sin enlaces mayoristas, retail sin cambios
+- [ ] 14.7 Cierre: archivar el change con `openspec archive wholesale-orders`
